@@ -27,6 +27,7 @@ export class AppService {
         break;
       case "adfoc.us":
         linkShortenerService = this.adfocusService;
+        break;
       default:
         throw new BadRequestException(
           `The hostname '${parsedUrlHost}' is not supported. Please provide a valid link from a supported link shortener.`,
