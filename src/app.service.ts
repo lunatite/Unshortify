@@ -2,12 +2,14 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { Sub2GetService } from "./services/sub2get.service";
 import { LinkShortenerService } from "./common/types/link-shortener-service.type";
 import { BoostInkService } from "./services/boostink.service";
+import { AdFocusService } from "./services/adfocus.service";
 
 @Injectable()
 export class AppService {
   constructor(
     private readonly sub2getService: Sub2GetService,
     private readonly boostInkService: BoostInkService,
+    private readonly adfocusService: AdFocusService,
   ) {}
 
   async getHello(url: string) {
@@ -23,6 +25,8 @@ export class AppService {
       case "boost.ink":
         linkShortenerService = this.boostInkService;
         break;
+      case "adfoc.us":
+        linkShortenerService = this.adfocusService;
       default:
         throw new BadRequestException(
           `The hostname '${parsedUrlHost}' is not supported. Please provide a valid link from a supported link shortener.`,
