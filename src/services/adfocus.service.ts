@@ -5,6 +5,10 @@ export class AdFocusService implements LinkShortenerService {
   public readonly name = "Adfoc.us";
 
   async bypass(url: URL): Promise<string> {
+    if (url.pathname === "/") {
+      throw new Error("Missing id path...");
+    }
+
     try {
       const { data } = await axios.get(url.href, {
         responseType: "text", // Correct response type
