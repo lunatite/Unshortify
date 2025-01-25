@@ -3,6 +3,7 @@ import { Sub2GetService } from "./services/sub2get.service";
 import { LinkShortenerService } from "./common/types/link-shortener-service.type";
 import { BoostInkService } from "./services/boostink.service";
 import { AdFocusService } from "./services/adfocus.service";
+import { MBoostMeService } from "./services/mboostme.service";
 
 @Injectable()
 export class AppService {
@@ -10,6 +11,7 @@ export class AppService {
     private readonly sub2getService: Sub2GetService,
     private readonly boostInkService: BoostInkService,
     private readonly adfocusService: AdFocusService,
+    private readonly mboostMeService: MBoostMeService,
   ) {}
 
   async getHello(url: string) {
@@ -27,6 +29,9 @@ export class AppService {
         break;
       case "adfoc.us":
         linkShortenerService = this.adfocusService;
+        break;
+      case "mboost.me":
+        linkShortenerService = this.mboostMeService;
         break;
       default:
         throw new BadRequestException(
