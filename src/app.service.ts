@@ -38,6 +38,7 @@ export class AppService {
       case "lootdest.org":
       case "loot-link.com":
         linkShortenerService = this.lootlabsService;
+        break;
       default:
         throw new BadRequestException(
           `The hostname '${parsedUrlHost}' is not supported. Please provide a valid link from a supported link shortener.`,
