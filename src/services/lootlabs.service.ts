@@ -5,6 +5,7 @@ import { decodeBase64 } from "src/utils/decodeBase64";
 export class LootLabsService implements LinkShortenerService {
   public readonly name = "Lootlabs.gg";
 
+  private readonly taboolaApiKey = "cdb5e8d81c24e09c97db19a61b14ffdead0deac8";
   private readonly tidRegex = /p\['TID'\]\s*=\s*(\d+);/;
   private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
   private readonly numOfTasksRegex = /p\['NUM_OF_TASKS'\]\s*=\s*'(\d+)';/;
@@ -39,6 +40,16 @@ export class LootLabsService implements LinkShortenerService {
   private createSessionId() {
     const sessionId = Math.floor(Math.random() * 10 ** 18) + 10 ** 17;
     return sessionId;
+  }
+
+  private async getTaboolaUserId() {
+    const { data } = await axios.get<{
+      user: { id: string; isNewUser: boolean };
+    }>(
+      `https://api.taboola.com/2.0/json/lootlabs-roblox/user.sync?app.apikey=${this.taboolaApiKey}&app.type=desktop`,
+    );
+
+    return data.user.id;
   }
 
   // is tId the taskId idk?
@@ -94,7 +105,9 @@ export class LootLabsService implements LinkShortenerService {
 
     const cdnDomain = match2[1];
 
-    console.log(await this.fetchTaskConfiguration(cdnDomain, tId));
+    console.log(await this.getTaboolaUserId());
+
+    // https://api.taboola.com/2.0/json/lootlabs-roblox/user.sync?app.apikey=cdb5e8d81c24e09c97db19a61b14ffdead0deac8&app.type=desktop
 
     // cdn domain is dynamic??/
 
