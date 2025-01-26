@@ -799,33 +799,27 @@ const init = () => {
         return _0x41a659["text"]();
       });
     }),
-    (globalData["fetch"] = function (
-      _0x1bece9,
-      _0x937378,
-      _0x437069,
-      _0x288171,
-    ) {
+    (globalData["fetch"] = function (url, method, data, callbackFunc) {
       var _0x509741 = _0x3e2c96,
-        _0x447510 = {
-          method: _0x937378,
-          redirect: _0x509741(844),
+        reqInit = {
+          method: method,
+          redirect: "follow",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: _0x509741(731),
-          mode: _0x509741(920),
+          credentials: "include",
+          mode: "cors",
         };
-      _0x937378 == "POST" &&
-        (_0x447510[_0x509741(908)] = JSON[_0x509741(801)](_0x437069));
-      fetch(_0x1bece9, _0x447510)
-        [_0x509741(444)](function (_0x1156dc) {
+      method == "POST" && (reqInit.body = JSON.stringify(data));
+      fetch(url, reqInit)
+        .then(function (_0x1156dc) {
           var _0x189ebb = _0x509741;
           return _0x1156dc[_0x189ebb(900)]();
         })
-        [_0x509741(444)](function (_0x478442) {
-          _0x288171(_0x478442);
+        .then(function (_0x478442) {
+          callbackFunc(_0x478442);
         })
-        ["catch"](function (_0x42fce5) {
+        .catch(function (_0x42fce5) {
           globalData["adBlockModal"]("block");
         });
     }),
@@ -1101,44 +1095,44 @@ const init = () => {
         (globalData[_0x55850f(863)] = []),
         (globalData[_0x55850f(571)] =
           Math[_0x55850f(675)](Math[_0x55850f(809)]() * 10 ** 18) + 10 ** 17);
-      var _0x3c3e99 = [];
+      var blData = [];
       for (var _0x4737d6 = 0; _0x4737d6 < 20; _0x4737d6++) {
         var _0x2c0a97 = globalData[_0x55850f(574)]("t_" + _0x4737d6);
-        _0x2c0a97 && _0x3c3e99[_0x55850f(636)](_0x4737d6);
+        _0x2c0a97 && blData[_0x55850f(636)](_0x4737d6);
       }
       for (
         var _0x4cd338 = 0;
         _0x4cd338 < INCENTIVE_BL_TASKS[_0x55850f(810)];
         _0x4cd338++
       ) {
-        _0x3c3e99[_0x55850f(453)](INCENTIVE_BL_TASKS[_0x4cd338]) == -1 &&
-          _0x3c3e99["push"](INCENTIVE_BL_TASKS[_0x4cd338]);
+        blData[_0x55850f(453)](INCENTIVE_BL_TASKS[_0x4cd338]) == -1 &&
+          blData["push"](INCENTIVE_BL_TASKS[_0x4cd338]);
       }
-      var _0x3f0067 = {};
-      (_0x3f0067[_0x55850f(746)] = TID),
-        (_0x3f0067["bl"] = _0x3c3e99),
-        (_0x3f0067["session"] = globalData[_0x55850f(571)]),
-        (_0x3f0067[_0x55850f(715)] = INCENTIVE_NUMBER_OF_TASKS),
-        (_0x3f0067["design_id"] = 102),
-        (_0x3f0067[_0x55850f(471)] = window[_0x55850f(662)][_0x55850f(570)]),
-        (_0x3f0067["doc_ref"] = document[_0x55850f(455)]),
-        (_0x3f0067[_0x55850f(915)] = TIER_ID),
-        (_0x3f0067[_0x55850f(625)] = NUM_OF_TASKS),
-        (_0x3f0067[_0x55850f(651)] =
+      var data = {};
+      (data.tid = TID),
+        (data.bl = blData),
+        (data.session = globalData.session),
+        (data.max_tasks = INCENTIVE_NUMBER_OF_TASKS),
+        (data.design_id = 102),
+        (data.cur_url = window.location.href),
+        (data.doc_ref = document.referrer),
+        (data.tier_id = TIER_ID),
+        (data.num_of_tasks = NUM_OF_TASKS),
+        (data.cookie_id =
           globalData[_0x55850f(574)](_0x55850f(861)) ||
-          (Math[_0x55850f(675)](
-            Math[_0x55850f(809)]() * (999999999 - 100000000 + 1),
-          ) + 100000000)["toString"]());
+          (Math.floor(Math.random() * (999999999 - 100000000 + 1)) + 100000000)[
+            "toString"
+          ]());
       const _0x1fd262 = new URLSearchParams(
           window[_0x55850f(662)][_0x55850f(894)],
         ),
         _0x349689 = _0x1fd262[_0x55850f(901)](_0x55850f(740));
-      _0x349689 && (_0x3f0067["puid"] = _0x349689);
-      const _0xc86538 = {
+      _0x349689 && (data["puid"] = _0x349689);
+      const tabloola_user_sync_data = {
           id: "",
         },
         _0x27da49 = globalData["getWithExpiry"](_0x55850f(707));
-      if (_0x27da49) _0xc86538["id"] = _0x27da49;
+      if (_0x27da49) tabloola_user_sync_data["id"] = _0x27da49;
       else {
         const _0x2ee7bd = globalData[_0x55850f(754)](),
           _0x41c574 = _0x55850f(445),
@@ -1160,11 +1154,11 @@ const init = () => {
           [_0x55850f(444)]((_0x2656b2) => {
             var _0x209eb0 = _0x55850f;
             if (_0x2656b2["length"])
-              (_0xc86538["id"] =
+              (tabloola_user_sync_data["id"] =
                 JSON[_0x209eb0(566)](_0x2656b2)[_0x209eb0(512)]["id"]),
                 globalData["setWithExpiry"](
                   _0x209eb0(707),
-                  _0xc86538["id"],
+                  tabloola_user_sync_data["id"],
                   30 * 24 * 60 * 60 * 1000,
                 );
             else throw new Error("No user Id returned");
@@ -1177,11 +1171,11 @@ const init = () => {
             );
           });
       }
-      (_0x3f0067[_0x55850f(707)] = _0xc86538["id"]),
-        globalData[_0x55850f(727)](
-          _0x55850f(813) + INCENTIVE_SYNCER_DOMAIN + _0x55850f(652),
-          _0x55850f(627),
-          _0x3f0067,
+      (data["taboola_user_sync"] = tabloola_user_sync_data["id"]),
+        globalData.fetch(
+          "https://" + INCENTIVE_SYNCER_DOMAIN + "/tc",
+          "POST",
+          data,
           function (_0x2f0dbc) {
             var _0x4c1ac1 = _0x55850f;
             globalData["categories"] = _0x2f0dbc;
