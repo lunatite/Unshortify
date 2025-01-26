@@ -36,8 +36,16 @@ export class LootLabsService implements LinkShortenerService {
     return cookieId;
   }
 
+  private createSessionId() {
+    const sessionId = Math.floor(Math.random() * 10 ** 18) + 10 ** 17;
+    return sessionId;
+  }
+
   // is tId the taskId idk?
-  private async getTaskDataFromCdn(cdnDomain: string, tId: string | number) {
+  private async fetchTaskConfiguration(
+    cdnDomain: string,
+    tId: string | number,
+  ) {
     const { data: rawData } = await axios.get<string>(
       `https://${cdnDomain}?tid=${tId}&params_only=1`,
     );
@@ -86,7 +94,7 @@ export class LootLabsService implements LinkShortenerService {
 
     const cdnDomain = match2[1];
 
-    console.log(await this.getTaskDataFromCdn(cdnDomain, tId));
+    console.log(await this.fetchTaskConfiguration(cdnDomain, tId));
 
     // cdn domain is dynamic??/
 
