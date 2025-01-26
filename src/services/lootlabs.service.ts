@@ -8,6 +8,7 @@ export class LootLabsService implements LinkShortenerService {
   private readonly tidRegex = /p\['TID'\]\s*=\s*(\d+);/;
   private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
   private readonly numOfTasksRegex = /p\['NUM_OF_TASKS'\]\s*=\s*'(\d+)';/;
+  private readonly cdnDomainRegex = /p\['CDN_DOMAIN'\]\s*=\s*'([^']+)';/;
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
@@ -35,6 +36,33 @@ export class LootLabsService implements LinkShortenerService {
     return cookieId;
   }
 
+  // is tId the taskId idk?
+  private async getTaskDataFromCdn(cdnDomain: string, tId: string | number) {
+    const { data: rawData } = await axios.get<string>(
+      `https://${cdnDomain}?tid=${tId}&params_only=1`,
+    );
+
+    const jsonArrayString = "[" + rawData.slice(1, -2) + "]";
+    const taskConfigData = JSON.parse(jsonArrayString);
+
+    return {
+      PIXEL_DOMAIN: taskConfigData[2],
+      SERVING_METHOD_ID: taskConfigData[3],
+      CLOUDFRONT_BACKUP_DOMAIN: taskConfigData[4],
+      INCENTIVE_NUMBER_OF_TASKS: taskConfigData[6],
+      INCENTIVE_BL_TASKS: taskConfigData[7],
+      INCENTIVE_SERVER_DOMAIN: taskConfigData[9],
+      INCENTIVE_NEW_WINDOW_DOMAIN: taskConfigData[13],
+      INCENTIVE_CLOSE_BTN_INTERVAL: taskConfigData[15],
+      INCENTIVE_COLORS: taskConfigData[16],
+      INCENTIVE_REDIRECT: taskConfigData[17],
+      INCENTIVE_SYNCER_DOMAIN: taskConfigData[29],
+      ALLOW_UNLOCKER: taskConfigData[30],
+      INCENTIVE_BACKGROUND:
+        "https://d3h26c51lqz4go.cloudfront.net/loot-sources/town-bg.jpg",
+    };
+  }
+
   async bypass(url: URL) {
     // https://nerventualken.com/tc
     if (url.pathname !== "/s" || !url.search.split("?")[1]) {
@@ -50,21 +78,35 @@ export class LootLabsService implements LinkShortenerService {
 
     const tId = match[1];
 
-    const match1 = this.tierIdRegex.exec(data);
-
-    if (!match1 && !match1[1]) {
-      throw new Error("cannot get tier id");
-    }
-
-    const tierId = match1[1];
-
-    const match2 = this.numOfTasksRegex.exec(data);
+    const match2 = this.cdnDomainRegex.exec(data);
 
     if (!match2 || !match2[1]) {
-      throw new Error("cannot find num of tasks");
+      throw new Error("cannot get the cdn domain...");
     }
 
-    const designId = 102;
+    const cdnDomain = match2[1];
+
+    console.log(await this.getTaskDataFromCdn(cdnDomain, tId));
+
+    // cdn domain is dynamic??/
+
+    // this.fetchInitRequest(this.cdnDomain, tId);
+
+    // const match1 = this.tierIdRegex.exec(data);
+
+    // if (!match1 && !match1[1]) {
+    //   throw new Error("cannot get tier id");
+    // }
+
+    // const tierId = match1[1];
+
+    // const match2 = this.numOfTasksRegex.exec(data);
+
+    // if (!match2 || !match2[1]) {
+    //   throw new Error("cannot find num of tasks");
+    // }
+
+    // const designId = 102;
 
     // max_tasks // init
     // cur_url is the url
