@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LinkShortenerService } from "../link-shortener.types";
+import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 
 export class MBoostMeService implements LinkShortenerService {
   public readonly name = "MBoost.me";
@@ -9,7 +10,7 @@ export class MBoostMeService implements LinkShortenerService {
     const pathId = url.pathname.split("/a/")[1];
 
     if (!pathId) {
-      throw new Error("Invalid MBoost.me URL: Missing or invalid path.");
+      throw new InvalidPathException("/a/{id}");
     }
 
     try {
