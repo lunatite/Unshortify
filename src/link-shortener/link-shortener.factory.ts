@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
 import { LinkShortenerServiceName } from "src/common/types/link-shortener-service-name.type";
-import { AdFocusService } from "../link-shortener/services/adfocus.service";
-import { BoostInkService } from "../link-shortener/services/boostink.service";
-import { LootLabsService } from "../link-shortener/services/lootlabs.service";
-import { MBoostMeService } from "../link-shortener/services/mboostme.service";
-import { Sub2GetService } from "../link-shortener/services/sub2get.service";
+import { AdFocusService } from "./services/adfocus.service";
+import { BoostInkService } from "./services/boostink.service";
+import { LootLabsService } from "./services/lootlabs.service";
+import { MBoostMeService } from "./services/mboostme.service";
+import { Sub2GetService } from "./services/sub2get.service";
 
 @Injectable()
 export class LinkShortenerFactory {
