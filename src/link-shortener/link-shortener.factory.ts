@@ -1,6 +1,5 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
-import { LinkShortenerServiceName } from "src/common/types/link-shortener-service-name.type";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
@@ -17,22 +16,39 @@ export class LinkShortenerFactory {
     private readonly sub2getService: Sub2GetService,
   ) {}
 
-  getService(serviceName: LinkShortenerServiceName): LinkShortenerService {
-    switch (serviceName.toLowerCase() as LinkShortenerServiceName) {
-      case "adfocus":
-        return this.adFocusService;
-      case "boostink":
-        return this.boostInkService;
-      case "lootlabs":
-        return this.lootlabsService;
-      case "mboostme":
-        return this.mBoostMeService;
-      case "sub2get":
-        return this.sub2getService;
+  async getBypassedLink(url: string) {
+    const parsedUrl = new URL(url);
+    const parsedUrlHost = parsedUrl.hostname;
+    let linkShortenerService: LinkShortenerService;
+
+    switch (parsedUrlHost) {
+      case "sub2get.com":
+        linkShortenerService = this.sub2getService;
+        break;
+      case "boost.ink":
+        linkShortenerService = this.boostInkService;
+        break;
+      case "adfoc.us":
+        linkShortenerService = this.adFocusService;
+        break;
+      case "mboost.me":
+        linkShortenerService = this.mBoostMeService;
+        break;
+      case "lootdest.org":
+      case "loot-link.com":
+        linkShortenerService = this.lootlabsService;
+        break;
       default:
-        throw new InternalServerErrorException(
-          `Unsupported service : ${serviceName}`,
+        throw new BadRequestException(
+          "The hostname '${parsedUrlHost}' is not supported",
         );
     }
+
+    const bypassedLink = await linkShortenerService.bypass(parsedUrl);
+
+    return {
+      name: linkShortenerService.name,
+      link: bypassedLink,
+    };
   }
 }
