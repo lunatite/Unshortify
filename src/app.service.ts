@@ -4,6 +4,7 @@ import { LinkShortenerService } from "./common/types/link-shortener-service.type
 import { BoostInkService } from "./services/boostink.service";
 import { AdFocusService } from "./services/adfocus.service";
 import { MBoostMeService } from "./services/mboostme.service";
+import { LootLabsService } from "./services/lootlabs.service";
 
 @Injectable()
 export class AppService {
@@ -12,6 +13,7 @@ export class AppService {
     private readonly boostInkService: BoostInkService,
     private readonly adfocusService: AdFocusService,
     private readonly mboostMeService: MBoostMeService,
+    private readonly lootlabsService: LootLabsService,
   ) {}
 
   async getHello(url: string) {
@@ -32,6 +34,10 @@ export class AppService {
         break;
       case "mboost.me":
         linkShortenerService = this.mboostMeService;
+        break;
+      case "lootdest.org":
+      case "loot-link.com":
+        linkShortenerService = this.lootlabsService;
         break;
       default:
         throw new BadRequestException(
