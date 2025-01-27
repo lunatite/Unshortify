@@ -1,6 +1,8 @@
 import axios from "axios";
+import { InternalServerErrorException } from "@nestjs/common";
 import { LinkShortenerService } from "../link-shortener.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
 export class MBoostMeService implements LinkShortenerService {
   public readonly name = "MBoost.me";
@@ -13,24 +15,23 @@ export class MBoostMeService implements LinkShortenerService {
       throw new InvalidPathException("/a/{id}");
     }
 
+    let htmlContent: string;
+
     try {
-      const { data } = await axios.get(url.href, {
-        responseType: "text",
-      });
+      const response = await axios.get(url.href, { responseType: "text" });
 
-      const regex = /"targeturl"\s*:\s*"([^"]+)"/;
-      const match = regex.exec(data);
-
-      if (!match || !match[1]) {
-        throw new Error(
-          "Failed to extract target URL from the page. The page structure may have changed.",
-        );
-      }
-
-      const bypassedLink = match[1];
-      return bypassedLink;
+      htmlContent = response.data;
     } catch (error) {
-      throw new Error(`Failed to bypass MBoost.me URL: ${error.message}`);
+      throw new InternalServerErrorException(`Failed to fetch data from URL`);
     }
+
+    const bypassedLinkMatch = this.targetUrlRegex.exec(htmlContent);
+
+    if (!bypassedLinkMatch || !bypassedLinkMatch[1]) {
+      throw new BypassLinkNotFoundException();
+    }
+
+    const bypassedLink = bypassedLinkMatch[1];
+    return bypassedLink;
   }
 }

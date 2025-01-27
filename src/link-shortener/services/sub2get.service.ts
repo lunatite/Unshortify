@@ -28,9 +28,7 @@ export class Sub2GetService implements LinkShortenerService {
 
       htmlContent = response.data;
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to fetch data from URL : ${error.message}`,
-      );
+      throw new InternalServerErrorException("Failed to fetch data from URL");
     }
 
     const $ = cheerio.load(htmlContent);
