@@ -1,15 +1,51 @@
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import axios from "axios";
 import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
 import { decodeBase64 } from "src/utils/decodeBase64";
 
+export type LootLabsTaskAction = {
+  action_pixel_url: string;
+  ad_url: string;
+  urid: number;
+  test_counter: number;
+  time_to_complete: number;
+  test_choose: number;
+  tooltip: string;
+  timer: number;
+  session_id: number;
+  new_tab: boolean;
+  task_id: string;
+  title: string;
+  window_size: string;
+  sub_title: string;
+  icon: string;
+  auto_complete_seconds: number;
+};
+
+export type LootLabsConfigKey =
+  | "CDN_DOMAIN"
+  | "TID"
+  | "INCENTIVE_AVATAR"
+  | "PUBLISHER_IMAGE"
+  | "PUBLISHER_NAME"
+  | "PUBLISHER_TITLE"
+  | "KEY"
+  | "SHOW_UNLOCKER"
+  | "TIER_ID";
+
 export class LootLabsService implements LinkShortenerService {
   public readonly name = "Lootlabs.gg";
 
-  private readonly taboolaApiKey = "cdb5e8d81c24e09c97db19a61b14ffdead0deac8";
-  private readonly tidRegex = /p\['TID'\]\s*=\s*(\d+);/;
-  private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
-  private readonly numOfTasksRegex = /p\['NUM_OF_TASKS'\]\s*=\s*'(\d+)';/;
-  private readonly cdnDomainRegex = /p\['CDN_DOMAIN'\]\s*=\s*'([^']+)';/;
+  private readonly designId = 102;
+  // private readonly tidRegex = /p\['TID'\]\s*=\s*(\d+);/;
+  // private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
+
+  // private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
+  // private readonly numOfTasksRegex = /p\['NUM_OF_TASKS'\]\s*=\s*'(\d+)';/;
+  // private readonly cdnDomainRegex = /p\['CDN_DOMAIN'\]\s*=\s*'([^']+)';/;
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
@@ -42,14 +78,30 @@ export class LootLabsService implements LinkShortenerService {
     return sessionId;
   }
 
-  private async getTaboolaUserId() {
-    const { data } = await axios.get<{
-      user: { id: string; isNewUser: boolean };
-    }>(
-      `https://api.taboola.com/2.0/json/lootlabs-roblox/user.sync?app.apikey=${this.taboolaApiKey}&app.type=desktop`,
-    );
+  // Looks like it doesn't matter if the taboola user id is empty...
+  private async fetchTaboolaUserId() {
+    // const { data } = await axios.get<{
+    //   user: { id: string; isNewUser: boolean };
+    // }>(
+    //   `https://api.taboola.com/2.0/json/lootlabs-roblox/user.sync?app.apikey=${this.taboolaApiKey}&app.type=desktop`,
+    // );
 
-    return data.user.id;
+    return "";
+
+    // return data.user.id;
+  }
+
+  private getConfigKeyFromHtml(key: LootLabsConfigKey, html: string) {
+    const regex = new RegExp(`p\\['${key}'\\]\\s*=\\s*(?:'|")?(.*?)(?:'|")?;`);
+    const match = regex.exec(html);
+
+    if (!match || !match[1]) {
+      throw new InternalServerErrorException(
+        `Failed to extract ${key} from the HTML content`,
+      );
+    }
+
+    return match[1];
   }
 
   // is tId the taskId idk?
@@ -82,64 +134,128 @@ export class LootLabsService implements LinkShortenerService {
     };
   }
 
+  private async fetchTaskActions(url: URL) {
+    const { data: htmlContent } = await axios.get(url.href, {
+      responseType: "text",
+    });
+
+    const tId = this.getConfigKeyFromHtml("TID", htmlContent);
+    const cdnDomain = this.getConfigKeyFromHtml("CDN_DOMAIN", htmlContent);
+    const key = this.getConfigKeyFromHtml("KEY", htmlContent);
+    const taboolaUserId = await this.fetchTaboolaUserId();
+    const taskConfiguration = await this.fetchTaskConfiguration(cdnDomain, tId);
+
+    const payload = {
+      bl: taskConfiguration.INCENTIVE_BL_TASKS,
+      cookie_id: this.createCookieId(),
+      cur_url: url.href,
+      design_id: this.designId,
+      doc_ref: "", // window.document.referrer
+      max_tasks: taskConfiguration.INCENTIVE_NUMBER_OF_TASKS,
+      num_of_tasks: "1",
+      session: this.createSessionId(),
+      taboola_user_sync: taboolaUserId,
+      tid: +tId,
+      tier_id: "1",
+    };
+
+    const { data: taskActionsData } = await axios.post<
+      Array<LootLabsTaskAction>
+    >("https://nerventualken.com/tc", payload);
+
+    return {
+      key,
+      actions: taskActionsData,
+    };
+  }
+
+  private sendTelemetry(urid: number) {
+    const url = `https://0.onsultingco.com/st?uid=${urid}&cat=14`;
+    axios.get(url);
+  }
+
+  private async connectAndDecodePublisherLink(
+    wsUrl: string,
+    decodePublisherLink: (encodedLink: string) => string,
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(wsUrl);
+      let idleCheckInterval = null;
+      let idleCheckCount = 0;
+      const idleCheckIntervalDirection = 10000;
+      const maxIdleChecks = 10;
+
+      const cleanup = () => {
+        if (idleCheckInterval) {
+          clearInterval(idleCheckInterval);
+          idleCheckInterval = null;
+        }
+
+        ws.close();
+      };
+
+      ws.onopen = function () {
+        idleCheckInterval = setInterval(() => {
+          idleCheckCount++;
+
+          if (idleCheckCount > maxIdleChecks) {
+            cleanup();
+            reject(
+              new InternalServerErrorException(
+                "Too many idle checks: No response from server",
+              ),
+            );
+            return;
+          }
+
+          ws.send("0");
+        }, idleCheckIntervalDirection);
+      };
+
+      ws.onmessage = (message) => {
+        const data = message.data as string;
+
+        if (data.startsWith("r:")) {
+          const encodedPublisherLink = data.split("r:")[1];
+          const decodedPublisherLink =
+            decodePublisherLink(encodedPublisherLink);
+
+          cleanup();
+          resolve(decodedPublisherLink);
+        }
+      };
+
+      ws.onclose = function () {
+        cleanup();
+      };
+
+      ws.onerror = function (error) {
+        reject(error);
+        cleanup();
+      };
+    });
+  }
+
   async bypass(url: URL) {
-    // https://nerventualken.com/tc
     if (url.pathname !== "/s" || !url.search.split("?")[1]) {
-      throw new Error("Invalid LootLabs.gg URL : Missing or invalid path");
+      throw new BadRequestException(
+        "Invalid LootLabs.gg URL : Missing or invalid path",
+      );
     }
 
-    const { data } = await axios.get(url.href, { responseType: "text" });
-    const match = this.tidRegex.exec(data);
+    const { key, actions } = await this.fetchTaskActions(url);
+    const urid = actions[0].urid;
 
-    if (!match && !match[1]) {
-      throw new Error("cannot get the pid...");
-    }
+    this.sendTelemetry(urid);
 
-    const tId = match[1];
+    const wsUrl =
+      "wss://0.onsultingco.com/c?uid=" + urid + "&cat=14&key=" + key;
 
-    const match2 = this.cdnDomainRegex.exec(data);
+    const decodedPublisherLink = await this.connectAndDecodePublisherLink(
+      wsUrl,
+      this.decodePublisherLink,
+    );
 
-    if (!match2 || !match2[1]) {
-      throw new Error("cannot get the cdn domain...");
-    }
-
-    const cdnDomain = match2[1];
-
-    console.log(await this.getTaboolaUserId());
-
-    // https://api.taboola.com/2.0/json/lootlabs-roblox/user.sync?app.apikey=cdb5e8d81c24e09c97db19a61b14ffdead0deac8&app.type=desktop
-
-    // cdn domain is dynamic??/
-
-    // this.fetchInitRequest(this.cdnDomain, tId);
-
-    // const match1 = this.tierIdRegex.exec(data);
-
-    // if (!match1 && !match1[1]) {
-    //   throw new Error("cannot get tier id");
-    // }
-
-    // const tierId = match1[1];
-
-    // const match2 = this.numOfTasksRegex.exec(data);
-
-    // if (!match2 || !match2[1]) {
-    //   throw new Error("cannot find num of tasks");
-    // }
-
-    // const designId = 102;
-
-    // max_tasks // init
-    // cur_url is the url
-
-    // https://1.onsultingco.com/st?uid=52916735449380215&cat=14 POST
-    // maybe they log the action?
-    // wss://1.onsultingco.com/c?uid=52916735449380215&cat=14&key=637269397578985692
-    // key isn't returned so we might have to go look for it...
-    // connect to websocket to get the publisher link?
-
-    // console.log(this.decodePublisherLink("NzQxNTlfQEVFSg0bHkdWVVheTRdUW1w="));
-
-    return "";
+    return decodedPublisherLink;
   }
 }
