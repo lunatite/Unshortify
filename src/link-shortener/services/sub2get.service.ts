@@ -7,6 +7,7 @@ import {
 
 import { MissingParameterError } from "src/common/errors";
 import { LinkShortenerService } from "../link-shortener.types";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 export class Sub2GetService implements LinkShortenerService {
   public readonly name = "Sub2Get";
@@ -36,9 +37,7 @@ export class Sub2GetService implements LinkShortenerService {
     const bypassedLink = $("#updateHiddenUnlocks").attr("href");
 
     if (!bypassedLink) {
-      throw new BadRequestException(
-        "Failed to find the bypass link on the page",
-      );
+      throw new BypassLinkNotFoundException();
     }
 
     return bypassedLink;
