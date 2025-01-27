@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
+import { LinkShortenerService } from "../link-shortener.types";
 
 export class MBoostMeService implements LinkShortenerService {
   public readonly name = "MBoost.me";

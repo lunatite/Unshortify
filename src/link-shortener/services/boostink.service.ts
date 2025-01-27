@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
+import { LinkShortenerService } from "../link-shortener.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 
 export class BoostInkService implements LinkShortenerService {

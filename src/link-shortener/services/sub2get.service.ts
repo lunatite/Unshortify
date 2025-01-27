@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
-import { LinkShortenerService } from "src/common/types/link-shortener-service.type";
+import { LinkShortenerService } from "../link-shortener.types";
 
 export class Sub2GetService implements LinkShortenerService {
   public readonly name = "Sub2Get";
