@@ -5,6 +5,7 @@ import {
 import axios from "axios";
 import { LinkShortenerService } from "../link-shortener.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
+import { MissingParameterError } from "src/common/errors";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -238,9 +239,7 @@ export class LootLabsService implements LinkShortenerService {
 
   async bypass(url: URL) {
     if (url.pathname !== "/s" || !url.search.split("?")[1]) {
-      throw new BadRequestException(
-        "Invalid LootLabs.gg URL : Missing or invalid path",
-      );
+      throw new MissingParameterError("s");
     }
 
     const { key, actions } = await this.fetchTaskActions(url);
