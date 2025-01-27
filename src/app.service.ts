@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { Sub2GetService } from "./services/sub2get.service";
+import { Sub2GetService } from "./link-shortener/services/sub2get.service";
 import { LinkShortenerService } from "./common/types/link-shortener-service.type";
-import { BoostInkService } from "./services/boostink.service";
-import { AdFocusService } from "./services/adfocus.service";
-import { MBoostMeService } from "./services/mboostme.service";
-import { LootLabsService } from "./services/lootlabs.service";
+import { BoostInkService } from "./link-shortener/services/boostink.service";
+import { AdFocusService } from "./link-shortener/services/adfocus.service";
+import { MBoostMeService } from "./link-shortener/services/mboostme.service";
+import { LootLabsService } from "./link-shortener/services/lootlabs.service";
 
 @Injectable()
 export class AppService {
