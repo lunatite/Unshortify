@@ -1,5 +1,10 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from "@nestjs/common";
+
 import { MissingParameterError } from "src/common/errors";
 import { LinkShortenerService } from "../link-shortener.types";
 
@@ -13,15 +18,29 @@ export class Sub2GetService implements LinkShortenerService {
       throw new MissingParameterError("l");
     }
 
+    let htmlContent: string;
+
     try {
-      const { data } = await axios.get(url.href, { responseType: "document" });
-      const $ = cheerio.load(data);
+      const response = await axios.get(url.href, {
+        responseType: "text",
+      });
 
-      const bypassedLink = $("#updateHiddenUnlocks").attr("href");
-
-      return bypassedLink;
+      htmlContent = response.data;
     } catch (error) {
-      throw new Error(`Failed to fetch data from URL: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to fetch data from URL : ${error.message}`,
+      );
     }
+
+    const $ = cheerio.load(htmlContent);
+    const bypassedLink = $("#updateHiddenUnlocks").attr("href");
+
+    if (!bypassedLink) {
+      throw new BadRequestException(
+        "Failed to find the bypass link on the page",
+      );
+    }
+
+    return bypassedLink;
   }
 }
