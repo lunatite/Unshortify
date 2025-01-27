@@ -1,7 +1,10 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { InternalServerErrorException } from "@nestjs/common";
 import { LinkShortenerService } from "../link-shortener.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
+import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
 export class BoostInkService implements LinkShortenerService {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
@@ -11,29 +14,29 @@ export class BoostInkService implements LinkShortenerService {
     const path = url.pathname;
 
     if (path === "/") {
-      throw new Error("Missing id path...");
+      throw new InvalidPathException("/{id}");
     }
+
+    let htmlContent: string;
 
     try {
-      const { data } = await axios.get(url.href, { responseType: "document" });
-      const $ = cheerio.load(data);
-
-      const base64Link = $(`script[${this.scriptAttribName}]`).attr(
-        this.scriptAttribName,
-      );
-
-      if (!base64Link) {
-        throw new Error(
-          `Script tag with attribute ${this.scriptAttribName} not found`,
-        );
-      }
-
-      const bypassedLink = decodeBase64(base64Link);
-
-      return bypassedLink;
+      const response = await axios.get(url.href, { responseType: "text" });
+      htmlContent = response.data;
     } catch (error) {
-      console.log(error);
-      throw new Error(`Failed to fetch data from URL: ${error.message}`);
+      throw new InternalServerErrorException("Failed to fetch data from URL");
     }
+
+    const $ = cheerio.load(htmlContent);
+
+    const encodedBypassedLink = $(`script[${this.scriptAttribName}]`).attr(
+      this.scriptAttribName,
+    );
+
+    if (!encodedBypassedLink) {
+      throw new BypassLinkNotFoundException();
+    }
+
+    const bypassedLink = decodeBase64(encodedBypassedLink);
+    return bypassedLink;
   }
 }
