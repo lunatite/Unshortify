@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { LinkShortenerService } from "./link-shortener.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
+import { HostNotSupported } from "./errors/host-not-supported.exception";
 
 @Injectable()
 export class LinkShortenerFactory {
@@ -16,12 +17,11 @@ export class LinkShortenerFactory {
     private readonly sub2getService: Sub2GetService,
   ) {}
 
-  async getBypassedLink(url: string) {
-    const parsedUrl = new URL(url);
-    const parsedUrlHost = parsedUrl.hostname;
+  async getBypassedLink(url: URL) {
+    const urlHostname = url.hostname;
     let linkShortenerService: LinkShortenerService;
 
-    switch (parsedUrlHost) {
+    switch (urlHostname) {
       case "sub2get.com":
         linkShortenerService = this.sub2getService;
         break;
@@ -39,12 +39,10 @@ export class LinkShortenerFactory {
         linkShortenerService = this.lootlabsService;
         break;
       default:
-        throw new BadRequestException(
-          "The hostname '${parsedUrlHost}' is not supported",
-        );
+        throw new HostNotSupported(url);
     }
 
-    const bypassedLink = await linkShortenerService.bypass(parsedUrl);
+    const bypassedLink = await linkShortenerService.bypass(url);
 
     return {
       name: linkShortenerService.name,

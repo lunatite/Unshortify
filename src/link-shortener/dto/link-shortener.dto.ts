@@ -1,3 +1,3 @@
 export class LinkShortenerDto {
-  url: string;
+  url: URL;
 }
