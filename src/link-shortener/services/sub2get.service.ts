@@ -7,7 +7,7 @@ import {
 
 import { MissingParameterError } from "src/common/errors";
 import { LinkShortenerService } from "../link-shortener.types";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
 export class Sub2GetService implements LinkShortenerService {
   public readonly name = "Sub2Get";
