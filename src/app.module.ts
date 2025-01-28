@@ -1,22 +1,9 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { Sub2GetService } from "./services/sub2get.service";
-import { BoostInkService } from "./services/boostink.service";
-import { AdFocusService } from "./services/adfocus.service";
-import { MBoostMeService } from "./services/mboostme.service";
-import { LootLabsService } from "./services/lootlabs.service";
+import { LinkShortenerModule } from "./link-shortener/link-shortener.module";
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [
-    Sub2GetService,
-    AdFocusService,
-    BoostInkService,
-    MBoostMeService,
-    LootLabsService,
-    AppService,
-  ],
+  imports: [LinkShortenerModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
