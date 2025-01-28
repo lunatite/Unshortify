@@ -1,3 +1,6 @@
+import { IsUrl } from "class-validator";
+
 export class LinkShortenerDto {
-  url: URL;
+  @IsUrl()
+  url: string;
 }

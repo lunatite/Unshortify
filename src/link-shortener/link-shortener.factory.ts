@@ -42,6 +42,7 @@ export class LinkShortenerFactory {
         break;
       case "linkvertise.com":
         linkShortenerService = this.linkvertiseService;
+        break;
       default:
         throw new HostNotSupported(url);
     }
