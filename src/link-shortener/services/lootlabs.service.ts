@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  InternalServerErrorException,
-} from "@nestjs/common";
+import { InternalServerErrorException } from "@nestjs/common";
 import axios from "axios";
 import { LinkShortenerService } from "../link-shortener.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
@@ -41,12 +38,6 @@ export class LootLabsService implements LinkShortenerService {
   public readonly name = "Lootlabs.gg";
 
   private readonly designId = 102;
-  // private readonly tidRegex = /p\['TID'\]\s*=\s*(\d+);/;
-  // private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
-
-  // private readonly tierIdRegex = /p\['TIER_ID'\]\s*=\s*'(\d+)';/;
-  // private readonly numOfTasksRegex = /p\['NUM_OF_TASKS'\]\s*=\s*'(\d+)';/;
-  // private readonly cdnDomainRegex = /p\['CDN_DOMAIN'\]\s*=\s*'([^']+)';/;
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
