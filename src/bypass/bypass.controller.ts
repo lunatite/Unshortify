@@ -1,9 +1,9 @@
 import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
-import { LinkShortenerFactory } from "./link-shortener.factory";
+import { LinkShortenerFactory } from "./bypass.factory";
 import { LinkShortenerDto } from "./dto/link-shortener.dto";
 
 @Controller("/link-shortener")
-export class LinkShortenerController {
+export class BypassController {
   constructor(private readonly factory: LinkShortenerFactory) {}
 
   @Post("/")

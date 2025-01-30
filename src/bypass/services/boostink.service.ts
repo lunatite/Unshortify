@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { InternalServerErrorException } from "@nestjs/common";
-import { LinkShortenerService } from "../link-shortener.types";
+import { LinkShortenerService } from "../bypass.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";

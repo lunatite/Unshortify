@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import axios from "axios";
-import { LinkShortenerService } from "../link-shortener.types";
+import { LinkShortenerService } from "../bypass.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
 

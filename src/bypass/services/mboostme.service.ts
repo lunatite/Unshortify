@@ -1,6 +1,6 @@
 import axios from "axios";
 import { InternalServerErrorException } from "@nestjs/common";
-import { LinkShortenerService } from "../link-shortener.types";
+import { LinkShortenerService } from "../bypass.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 

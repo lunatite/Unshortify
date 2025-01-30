@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import axios, { Method } from "axios";
 import * as https from "https";
-import { LinkShortenerService } from "../../link-shortener.types";
+import { LinkShortenerService } from "../../bypass.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
 
