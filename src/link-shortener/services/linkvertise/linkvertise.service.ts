@@ -179,11 +179,6 @@ export class LinkvertiseService implements LinkShortenerService {
       throw new InvalidPathException("/{userId}/{name}");
     }
 
-    // const { user_token: userToken } = await this.request<AccountResponse>(
-    //   "https://publisher.linkvertise.com/api/v1/account",
-    //   "GET",
-    // );
-
     const detailPageContent = await this.getDetailPageContent(userId, name);
 
     if (detailPageContent.link.is_premium_only_link) {
