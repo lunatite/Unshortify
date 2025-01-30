@@ -1,13 +1,13 @@
 import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
-import { LinkShortenerFactory } from "./link-shortener.factory";
-import { LinkShortenerDto } from "./dto/link-shortener.dto";
+import { BypassResolver } from "./bypass.resolver";
+import { BypassLinkDto } from "./dto/bypass-link.dto";
 
 @Controller("/link-shortener")
-export class LinkShortenerController {
-  constructor(private readonly factory: LinkShortenerFactory) {}
+export class BypassController {
+  constructor(private readonly factory: BypassResolver) {}
 
   @Post("/")
-  async getBypassedLink(@Body() linkShortenerDto: LinkShortenerDto) {
+  async getBypassedLink(@Body() linkShortenerDto: BypassLinkDto) {
     try {
       const { url } = linkShortenerDto;
       const result = await this.factory.getBypassedLink(new URL(url));

@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { LinkShortenerModule } from "./link-shortener/link-shortener.module";
+import { BypassModule } from "./bypass/bypass.module";
 
 @Module({
-  imports: [LinkShortenerModule],
+  imports: [BypassModule],
   controllers: [],
   providers: [],
 })
