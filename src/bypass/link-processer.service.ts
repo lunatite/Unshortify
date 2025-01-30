@@ -9,7 +9,7 @@ import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
-export class BypassResolver {
+export class LinkProcessorService {
   private readonly serviceMap: Map<string, BypassLinkService>;
 
   constructor(
@@ -31,7 +31,7 @@ export class BypassResolver {
     this.serviceMap.set("linkvertise.com", linkvertiseService);
   }
 
-  async getBypassedLink(url: URL) {
+  async process(url: URL) {
     const bypassLinkService = this.serviceMap.get(url.hostname);
 
     if (!bypassLinkService) {
