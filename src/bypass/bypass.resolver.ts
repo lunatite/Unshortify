@@ -10,48 +10,39 @@ import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
 export class BypassResolver {
+  private readonly serviceMap: Map<string, BypassLinkService>;
+
   constructor(
-    private readonly adFocusService: AdFocusService,
-    private readonly boostInkService: BoostInkService,
-    private readonly lootlabsService: LootLabsService,
-    private readonly mBoostMeService: MBoostMeService,
-    private readonly sub2getService: Sub2GetService,
-    private readonly linkvertiseService: LinkvertiseService,
-  ) {}
+    adFocusService: AdFocusService,
+    boostInkService: BoostInkService,
+    lootlabsService: LootLabsService,
+    mBoostMeService: MBoostMeService,
+    sub2getService: Sub2GetService,
+    linkvertiseService: LinkvertiseService,
+  ) {
+    this.serviceMap = new Map();
+
+    this.serviceMap.set("sub2get.com", sub2getService);
+    this.serviceMap.set("boost.ink", boostInkService);
+    this.serviceMap.set("adfoc.us", adFocusService);
+    this.serviceMap.set("mboost.me", mBoostMeService);
+    this.serviceMap.set("lootdest.org", lootlabsService);
+    this.serviceMap.set("loot-link.com", lootlabsService);
+    this.serviceMap.set("linkvertise.com", linkvertiseService);
+  }
 
   async getBypassedLink(url: URL) {
-    const urlHostname = url.hostname;
-    let bypassLinkService: BypassLinkService;
+    const bypassLinkService = this.serviceMap.get(url.hostname);
 
-    switch (urlHostname) {
-      case "sub2get.com":
-        bypassLinkService = this.sub2getService;
-        break;
-      case "boost.ink":
-        bypassLinkService = this.boostInkService;
-        break;
-      case "adfoc.us":
-        bypassLinkService = this.adFocusService;
-        break;
-      case "mboost.me":
-        bypassLinkService = this.mBoostMeService;
-        break;
-      case "lootdest.org":
-      case "loot-link.com":
-        bypassLinkService = this.lootlabsService;
-        break;
-      case "linkvertise.com":
-        bypassLinkService = this.linkvertiseService;
-        break;
-      default:
-        throw new HostNotSupported(url);
+    if (!bypassLinkService) {
+      throw new HostNotSupported(url);
     }
 
-    const bypassedLink = await bypassLinkService.bypass(url);
+    const result = await bypassLinkService.bypass(url);
 
     return {
       name: bypassLinkService.name,
-      link: bypassedLink,
+      result,
     };
   }
 }
