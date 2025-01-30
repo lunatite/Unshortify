@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import axios, { Method } from "axios";
 import * as https from "https";
-import { BypassLinkService } from "../../bypass.types";
+import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
 
@@ -51,7 +51,7 @@ export type DetailPageTargetResponse = {
 };
 
 @Injectable()
-export class LinkvertiseService implements BypassLinkService {
+export class LinkvertiseService implements LinkProcessorHandler {
   public readonly name = "Linkvertise";
   private readonly httpsAgent;
   private readonly graphqlUrl;

@@ -6,10 +6,10 @@ import {
 } from "@nestjs/common";
 
 import { MissingParameterError } from "src/common/errors";
-import { BypassLinkService } from "../bypass.types";
+import { LinkProcessorHandler } from "../link-processor.types";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
-export class Sub2GetService implements BypassLinkService {
+export class Sub2GetService implements LinkProcessorHandler {
   public readonly name = "Sub2Get";
 
   async resolve(url: URL) {

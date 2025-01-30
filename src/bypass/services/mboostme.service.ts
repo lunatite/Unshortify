@@ -1,10 +1,10 @@
 import axios from "axios";
 import { InternalServerErrorException } from "@nestjs/common";
-import { BypassLinkService } from "../bypass.types";
+import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
-export class MBoostMeService implements BypassLinkService {
+export class MBoostMeService implements LinkProcessorHandler {
   public readonly name = "MBoost.me";
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 

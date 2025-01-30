@@ -4,13 +4,13 @@ import { BypassLinkDto } from "./dto/bypass-link.dto";
 
 @Controller("/bypass")
 export class BypassController {
-  constructor(private readonly factory: LinkProcessorService) {}
+  constructor(private readonly service: LinkProcessorService) {}
 
   @Post("/")
-  async getBypassedLink(@Body() linkShortenerDto: BypassLinkDto) {
+  async processLink(@Body() dto: BypassLinkDto) {
     try {
-      const { url } = linkShortenerDto;
-      const result = await this.factory.process(new URL(url));
+      const { url } = dto;
+      const result = await this.service.process(new URL(url));
 
       return result;
     } catch (error) {

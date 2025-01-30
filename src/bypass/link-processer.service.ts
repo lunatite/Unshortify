@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { BypassLinkService } from "./bypass.types";
+import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
@@ -10,7 +10,7 @@ import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
 export class LinkProcessorService {
-  private readonly serviceMap: Map<string, BypassLinkService>;
+  private readonly serviceMap: Map<string, LinkProcessorHandler>;
 
   constructor(
     adFocusService: AdFocusService,
@@ -32,16 +32,16 @@ export class LinkProcessorService {
   }
 
   async process(url: URL) {
-    const bypassLinkService = this.serviceMap.get(url.hostname);
+    const linkProcessingService = this.serviceMap.get(url.hostname);
 
-    if (!bypassLinkService) {
+    if (!linkProcessingService) {
       throw new HostNotSupported(url);
     }
 
-    const result = await bypassLinkService.resolve(url);
+    const result = await linkProcessingService.resolve(url);
 
     return {
-      name: bypassLinkService.name,
+      name: linkProcessingService.name,
       result,
     };
   }

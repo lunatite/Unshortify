@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import axios from "axios";
-import { BypassLinkService } from "../bypass.types";
+import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
 
@@ -34,7 +34,7 @@ export type LootLabsConfigKey =
   | "SHOW_UNLOCKER"
   | "TIER_ID";
 
-export class LootLabsService implements BypassLinkService {
+export class LootLabsService implements LinkProcessorHandler {
   public readonly name = "Lootlabs.gg";
 
   private readonly designId = 102;
