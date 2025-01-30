@@ -1,21 +1,16 @@
 import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
-import { BypassResolver } from "./bypass.resolver";
+import { LinkProcessorService } from "./link-processer.service";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 
-@Controller("/link-shortener")
+@Controller("/bypass")
 export class BypassController {
-  constructor(private readonly factory: BypassResolver) {}
+  constructor(private readonly service: LinkProcessorService) {}
 
   @Post("/")
-  async getBypassedLink(@Body() linkShortenerDto: BypassLinkDto) {
-    try {
-      const { url } = linkShortenerDto;
-      const result = await this.factory.getBypassedLink(new URL(url));
+  async processLink(@Body() dto: BypassLinkDto) {
+    const { url } = dto;
+    const result = await this.service.process(new URL(url));
 
-      return result;
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(error.message || "An error occurred");
-    }
+    return result;
   }
 }
