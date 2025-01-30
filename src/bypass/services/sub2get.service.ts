@@ -1,10 +1,5 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import {
-  BadRequestException,
-  InternalServerErrorException,
-} from "@nestjs/common";
-
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
@@ -19,17 +14,9 @@ export class Sub2GetService implements LinkProcessorHandler {
       throw new MissingParameterError("l");
     }
 
-    let htmlContent: string;
-
-    try {
-      const response = await axios.get(url.href, {
-        responseType: "text",
-      });
-
-      htmlContent = response.data;
-    } catch (error) {
-      throw new InternalServerErrorException("Failed to fetch data from URL");
-    }
+    const { data: htmlContent } = await axios.get(url.href, {
+      responseType: "text",
+    });
 
     const $ = cheerio.load(htmlContent);
     const bypassedLink = $("#updateHiddenUnlocks").attr("href");

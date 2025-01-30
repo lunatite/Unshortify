@@ -1,7 +1,6 @@
 import axios from "axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { InternalServerErrorException } from "@nestjs/common";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
 export class AdFocusService implements LinkProcessorHandler {
@@ -13,21 +12,13 @@ export class AdFocusService implements LinkProcessorHandler {
       throw new InvalidPathException("/${id}");
     }
 
-    let htmlContent: string;
-
-    try {
-      const response = await axios.get(url.href, {
-        responseType: "text",
-        headers: {
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        },
-      });
-
-      htmlContent = response.data;
-    } catch (error) {
-      throw new InternalServerErrorException("Failed to fetch data from URL");
-    }
+    const { data: htmlContent } = await axios.get(url.href, {
+      responseType: "text",
+      headers: {
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
 
     const bypassedUrlMatch = this.clickUrlRegex.exec(htmlContent);
 
