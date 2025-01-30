@@ -42,7 +42,7 @@ export type CompleteDetailPageContentResponse = {
 export type DetailPageTargetResponse = {
   data: {
     getDetailPageTarget: {
-      type: "URL";
+      type: "URL" | "PASTE";
       url: string | null;
       paste: string | null;
     };
@@ -61,8 +61,7 @@ export class LinkvertiseService implements LinkShortenerService {
       ciphers: "TLS_AES_128_GCM_SHA256",
     });
 
-    this.graphqlUrl =
-      "https://publisher.linkvertise.com/graphql?X-Linkvertise-UT=";
+    this.graphqlUrl = "https://publisher.linkvertise.com/graphql";
   }
 
   private async request<T>(url: string, method: Method, data?: unknown) {
@@ -84,13 +83,9 @@ export class LinkvertiseService implements LinkShortenerService {
     return response.data;
   }
 
-  private async getDetailPageContent(
-    userToken: string,
-    userId: string | number,
-    url: string,
-  ) {
+  private async getDetailPageContent(userId: string | number, url: string) {
     const response = await this.request<DetailPageContentResponse>(
-      this.graphqlUrl + userToken,
+      this.graphqlUrl,
       "POST",
       {
         operationName: "getDetailPageContent",
@@ -116,13 +111,12 @@ export class LinkvertiseService implements LinkShortenerService {
   }
 
   private async getCompleteDetailPageContent(
-    userToken: string,
     userId: number | string,
     url: string,
     accessToken: string,
   ) {
     const response = await this.request<CompleteDetailPageContentResponse>(
-      this.graphqlUrl + userToken,
+      this.graphqlUrl,
       "POST",
       {
         operationName: "completeDetailPageContent",
@@ -143,13 +137,12 @@ export class LinkvertiseService implements LinkShortenerService {
   }
 
   private async getDetailPageTarget(
-    userToken: string,
     userId: number | string,
     url: string,
     targetToken: string,
   ) {
     const response = await this.request<DetailPageTargetResponse>(
-      this.graphqlUrl + userToken,
+      this.graphqlUrl,
       "POST",
       {
         operationName: "getDetailPageTarget",
@@ -185,16 +178,12 @@ export class LinkvertiseService implements LinkShortenerService {
       throw new InvalidPathException("/{userId}/{name}");
     }
 
-    const { user_token: userToken } = await this.request<AccountResponse>(
-      "https://publisher.linkvertise.com/api/v1/account",
-      "GET",
-    );
+    // const { user_token: userToken } = await this.request<AccountResponse>(
+    //   "https://publisher.linkvertise.com/api/v1/account",
+    //   "GET",
+    // );
 
-    const detailPageContent = await this.getDetailPageContent(
-      userToken,
-      userId,
-      name,
-    );
+    const detailPageContent = await this.getDetailPageContent(userId, name);
 
     if (detailPageContent.link.is_premium_only_link) {
       throw new BadRequestException(
@@ -206,32 +195,34 @@ export class LinkvertiseService implements LinkShortenerService {
       TARGET: targetToken,
       additional_target_access_information: { remaining_waiting_time },
     } = await this.getCompleteDetailPageContent(
-      userToken,
       userId,
       name,
       detailPageContent.access_token,
     );
 
-    console.log(remaining_waiting_time);
-
-    if (remaining_waiting_time > 0) {
+    if (remaining_waiting_time > 10) {
       throw new InternalServerErrorException(
         "Cooldown in progress. Please wait before trying again",
       );
     }
 
+    // YOU HAVE TO WAIT 10 SECONDS OR ELSE YOU HAVE TO INSTANTLY WAIT A 1 HOUR COOLDOWN
+    const a = await new Promise((resolve, reject) => {
+      setTimeout(
+        () => {
+          resolve(null);
+        },
+        1000 * remaining_waiting_time + 500,
+      );
+    });
+
     const detailPageTarget = await this.getDetailPageTarget(
-      userToken,
       userId,
       name,
       targetToken,
     );
 
-    const a = await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(null);
-      }, 5000);
-    });
+    console.log(detailPageTarget);
 
     if (detailPageTarget.type === "URL") {
       return detailPageTarget.url;
