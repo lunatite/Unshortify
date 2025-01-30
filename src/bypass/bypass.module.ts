@@ -5,7 +5,7 @@ import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
-import { LinkShortenerFactory } from "./bypass.factory";
+import { BypassResolver } from "./bypass.resolver";
 import { BypassController } from "./bypass.controller";
 
 @Module({
@@ -16,9 +16,9 @@ import { BypassController } from "./bypass.controller";
     MBoostMeService,
     Sub2GetService,
     LinkvertiseService,
-    LinkShortenerFactory,
+    BypassResolver,
   ],
   controllers: [BypassController],
-  exports: [LinkShortenerFactory],
+  exports: [BypassResolver],
 })
 export class BypassModule {}

@@ -1,12 +1,12 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { InternalServerErrorException } from "@nestjs/common";
-import { LinkShortenerService } from "../bypass.types";
+import { BypassLinkService } from "../bypass.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
-export class BoostInkService implements LinkShortenerService {
+export class BoostInkService implements BypassLinkService {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
   public readonly name = "Boost.Ink";
 

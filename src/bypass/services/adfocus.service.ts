@@ -1,10 +1,10 @@
 import axios from "axios";
-import { LinkShortenerService } from "../bypass.types";
+import { BypassLinkService } from "../bypass.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { InternalServerErrorException } from "@nestjs/common";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
-export class AdFocusService implements LinkShortenerService {
+export class AdFocusService implements BypassLinkService {
   public readonly name = "Adfoc.us";
   private readonly clickUrlRegex = /var click_url\s*=\s*"([^"]+)"/;
 

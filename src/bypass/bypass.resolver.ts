@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { LinkShortenerService } from "./bypass.types";
+import { BypassLinkService } from "./bypass.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
@@ -9,7 +9,7 @@ import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
-export class LinkShortenerFactory {
+export class BypassResolver {
   constructor(
     private readonly adFocusService: AdFocusService,
     private readonly boostInkService: BoostInkService,
@@ -21,36 +21,36 @@ export class LinkShortenerFactory {
 
   async getBypassedLink(url: URL) {
     const urlHostname = url.hostname;
-    let linkShortenerService: LinkShortenerService;
+    let bypassLinkService: BypassLinkService;
 
     switch (urlHostname) {
       case "sub2get.com":
-        linkShortenerService = this.sub2getService;
+        bypassLinkService = this.sub2getService;
         break;
       case "boost.ink":
-        linkShortenerService = this.boostInkService;
+        bypassLinkService = this.boostInkService;
         break;
       case "adfoc.us":
-        linkShortenerService = this.adFocusService;
+        bypassLinkService = this.adFocusService;
         break;
       case "mboost.me":
-        linkShortenerService = this.mBoostMeService;
+        bypassLinkService = this.mBoostMeService;
         break;
       case "lootdest.org":
       case "loot-link.com":
-        linkShortenerService = this.lootlabsService;
+        bypassLinkService = this.lootlabsService;
         break;
       case "linkvertise.com":
-        linkShortenerService = this.linkvertiseService;
+        bypassLinkService = this.linkvertiseService;
         break;
       default:
         throw new HostNotSupported(url);
     }
 
-    const bypassedLink = await linkShortenerService.bypass(url);
+    const bypassedLink = await bypassLinkService.bypass(url);
 
     return {
-      name: linkShortenerService.name,
+      name: bypassLinkService.name,
       link: bypassedLink,
     };
   }

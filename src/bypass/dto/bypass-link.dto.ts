@@ -1,6 +1,6 @@
 import { IsUrl } from "class-validator";
 
-export class LinkShortenerDto {
+export class BypassLinkDto {
   @IsUrl()
   url: string;
 }
