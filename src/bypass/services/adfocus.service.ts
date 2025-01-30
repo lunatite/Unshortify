@@ -8,7 +8,7 @@ export class AdFocusService implements BypassLinkService {
   public readonly name = "Adfoc.us";
   private readonly clickUrlRegex = /var click_url\s*=\s*"([^"]+)"/;
 
-  async bypass(url: URL): Promise<string> {
+  async resolve(url: URL): Promise<string> {
     if (url.pathname === "/") {
       throw new InvalidPathException("/${id}");
     }

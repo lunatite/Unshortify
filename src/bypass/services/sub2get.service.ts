@@ -12,7 +12,7 @@ import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found
 export class Sub2GetService implements BypassLinkService {
   public readonly name = "Sub2Get";
 
-  async bypass(url: URL) {
+  async resolve(url: URL) {
     const linkId = url.searchParams.get("l");
 
     if (!linkId) {

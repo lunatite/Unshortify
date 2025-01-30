@@ -38,7 +38,7 @@ export class BypassResolver {
       throw new HostNotSupported(url);
     }
 
-    const result = await bypassLinkService.bypass(url);
+    const result = await bypassLinkService.resolve(url);
 
     return {
       name: bypassLinkService.name,

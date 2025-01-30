@@ -173,7 +173,7 @@ export class LinkvertiseService implements BypassLinkService {
     return actionId.slice(0, 100);
   }
 
-  async bypass(url: URL) {
+  async resolve(url: URL) {
     const [_, userId, name] = url.pathname.split("/");
 
     if (!userId || !name) {

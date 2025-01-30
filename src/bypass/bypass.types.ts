@@ -1,4 +1,4 @@
 export type BypassLinkService = {
   name: string;
-  bypass: (url: URL) => Promise<string>;
+  resolve: (url: URL) => Promise<string>;
 };

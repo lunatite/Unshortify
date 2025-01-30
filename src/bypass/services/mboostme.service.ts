@@ -8,7 +8,7 @@ export class MBoostMeService implements BypassLinkService {
   public readonly name = "MBoost.me";
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 
-  async bypass(url: URL): Promise<string> {
+  async resolve(url: URL): Promise<string> {
     const pathId = url.pathname.split("/a/")[1];
 
     if (!pathId) {

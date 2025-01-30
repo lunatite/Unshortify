@@ -228,7 +228,7 @@ export class LootLabsService implements BypassLinkService {
     });
   }
 
-  async bypass(url: URL) {
+  async resolve(url: URL) {
     if (url.pathname !== "/s" || !url.search.split("?")[1]) {
       throw new MissingParameterError("s");
     }

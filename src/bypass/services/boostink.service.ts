@@ -10,7 +10,7 @@ export class BoostInkService implements BypassLinkService {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
   public readonly name = "Boost.Ink";
 
-  async bypass(url: URL) {
+  async resolve(url: URL) {
     const path = url.pathname;
 
     if (path === "/") {
