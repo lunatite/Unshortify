@@ -2,7 +2,7 @@ import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
 import { BypassResolver } from "./bypass.resolver";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 
-@Controller("/link-shortener")
+@Controller("/bypass")
 export class BypassController {
   constructor(private readonly factory: BypassResolver) {}
 
