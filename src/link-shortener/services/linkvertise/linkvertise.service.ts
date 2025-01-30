@@ -7,6 +7,7 @@ import axios, { Method } from "axios";
 import * as https from "https";
 import { LinkShortenerService } from "../../link-shortener.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { wait } from "src/utils/wait";
 
 export type AccountResponse = {
   user_token: string;
@@ -206,23 +207,14 @@ export class LinkvertiseService implements LinkShortenerService {
       );
     }
 
-    // YOU HAVE TO WAIT 10 SECONDS OR ELSE YOU HAVE TO INSTANTLY WAIT A 1 HOUR COOLDOWN
-    const a = await new Promise((resolve, reject) => {
-      setTimeout(
-        () => {
-          resolve(null);
-        },
-        1000 * remaining_waiting_time + 500,
-      );
-    });
+    // You must wait 10 seconds, or else you'll immediately have to wait for a 1-hour cooldown
+    await wait(1000 * remaining_waiting_time + 500);
 
     const detailPageTarget = await this.getDetailPageTarget(
       userId,
       name,
       targetToken,
     );
-
-    console.log(detailPageTarget);
 
     if (detailPageTarget.type === "URL") {
       return detailPageTarget.url;
