@@ -14,6 +14,7 @@ export class LinkShortenerController {
 
       return result;
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(error.message || "An error occurred");
     }
   }

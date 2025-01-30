@@ -6,7 +6,7 @@ import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
-import { LinkvertiseService } from "./services/linkvertise.service";
+import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
 export class LinkShortenerFactory {
