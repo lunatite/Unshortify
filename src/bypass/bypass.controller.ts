@@ -8,14 +8,9 @@ export class BypassController {
 
   @Post("/")
   async processLink(@Body() dto: BypassLinkDto) {
-    try {
-      const { url } = dto;
-      const result = await this.service.process(new URL(url));
+    const { url } = dto;
+    const result = await this.service.process(new URL(url));
 
-      return result;
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(error.message || "An error occurred");
-    }
+    return result;
   }
 }
