@@ -55,6 +55,7 @@ export class LinkvertiseService implements LinkShortenerService {
   public readonly name = "Linkvertise";
   private readonly httpsAgent;
   private readonly graphqlUrl;
+  private readonly defaultWaitTime = 10;
 
   constructor() {
     // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
@@ -196,7 +197,7 @@ export class LinkvertiseService implements LinkShortenerService {
       detailPageContent.access_token,
     );
 
-    if (remaining_waiting_time > 10) {
+    if (remaining_waiting_time > this.defaultWaitTime) {
       throw new InternalServerErrorException(
         "Cooldown in progress. Please wait before trying again",
       );
