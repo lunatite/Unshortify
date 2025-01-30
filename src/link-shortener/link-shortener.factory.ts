@@ -6,6 +6,7 @@ import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
+import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 
 @Injectable()
 export class LinkShortenerFactory {
@@ -15,6 +16,7 @@ export class LinkShortenerFactory {
     private readonly lootlabsService: LootLabsService,
     private readonly mBoostMeService: MBoostMeService,
     private readonly sub2getService: Sub2GetService,
+    private readonly linkvertiseService: LinkvertiseService,
   ) {}
 
   async getBypassedLink(url: URL) {
@@ -37,6 +39,9 @@ export class LinkShortenerFactory {
       case "lootdest.org":
       case "loot-link.com":
         linkShortenerService = this.lootlabsService;
+        break;
+      case "linkvertise.com":
+        linkShortenerService = this.linkvertiseService;
         break;
       default:
         throw new HostNotSupported(url);

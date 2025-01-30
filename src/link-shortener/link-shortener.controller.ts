@@ -10,10 +10,11 @@ export class LinkShortenerController {
   async getBypassedLink(@Body() linkShortenerDto: LinkShortenerDto) {
     try {
       const { url } = linkShortenerDto;
-      const result = await this.factory.getBypassedLink(url);
+      const result = await this.factory.getBypassedLink(new URL(url));
 
       return result;
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(error.message || "An error occurred");
     }
   }
