@@ -22,7 +22,7 @@ export class AdFocusService implements LinkProcessorHandler {
 
     const bypassedUrlMatch = this.clickUrlRegex.exec(htmlContent);
 
-    if (!bypassedUrlMatch || bypassedUrlMatch[1]) {
+    if (!bypassedUrlMatch || !bypassedUrlMatch[1]) {
       throw new BypassLinkNotFoundException();
     }
 

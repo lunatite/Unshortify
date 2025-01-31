@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+
+input {
+  display: block;
+  width: 100%;
+}
+
+.failure {
+  background-color: lightsalmon;
+}
+
+.success {
+  background-color: lightgreen;
+}
