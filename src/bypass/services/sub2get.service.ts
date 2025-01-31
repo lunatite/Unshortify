@@ -21,7 +21,7 @@ export class Sub2GetService implements LinkProcessorHandler {
     const $ = cheerio.load(htmlContent);
     const bypassedLink = $("#updateHiddenUnlocks").attr("href");
 
-    if (!bypassedLink) {
+    if (bypassedLink === undefined) {
       throw new BypassLinkNotFoundException();
     }
 
