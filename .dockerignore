@@ -1,0 +1,22 @@
+node_modules/
+
+# Config files
+.eslintrc.js
+.prettierrc
+eslint.config.mjs
+.gitignore
+.git/
+
+# Docker related files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# IDE-specific files
+.vscode/
+
+# Build output
+dist/
+
+# Test files
+test/
