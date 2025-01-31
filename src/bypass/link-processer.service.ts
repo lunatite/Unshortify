@@ -24,7 +24,12 @@ export class LinkProcessorService {
     this.serviceMap = new Map();
 
     this.serviceMap.set("sub2get.com", sub2getService);
+
+    this.serviceMap.set("bst.gg", boostInkService);
+    this.serviceMap.set("bst.wtf", boostInkService);
     this.serviceMap.set("boost.ink", boostInkService);
+    this.serviceMap.set("booo.st", boostInkService);
+
     this.serviceMap.set("adfoc.us", adFocusService);
     this.serviceMap.set("mboost.me", mBoostMeService);
     this.serviceMap.set("lootdest.org", lootlabsService);
