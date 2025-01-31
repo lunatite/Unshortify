@@ -1,25 +1,45 @@
-const bypassForm = document.getElementById("bypass-form");
-const urlInput = document.getElementById("url-input");
-const clearBtn = document.getElementById("clear-btn");
-const outputList = document.getElementById("output-list");
+const elements = {
+  bypassForm: document.getElementById("bypass-form"),
+  urlInput: document.getElementById("url-input"),
+  clearBtn: document.getElementById("clear-btn"),
+  outputList: document.getElementById("output-list"),
+  supportedServicesList: document.getElementById("supported-services-list"),
+};
 
-function insertFailureResult(result) {
-  const li = document.createElement("li");
-  li.classList.add("failure");
-  li.innerHTML = result;
+let supportedServices = [];
 
-  outputList.prepend(li);
+async function getSupportedServices() {
+  if (supportedServices.length > 0) {
+    return supportedServices;
+  }
+
+  try {
+    const response = await fetch("/api/bypass/supported");
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch services: ${response.statusText}`);
+    }
+
+    supportedServices = await response.json();
+    return supportedServices;
+  } catch (e) {
+    insertResult(
+      "failure",
+      `Failed to fetch supported bypass services: ${e.message}`,
+    );
+    return [];
+  }
 }
 
-function insertSuccessResult(result) {
+function insertResult(type, message) {
   const li = document.createElement("li");
-  li.classList.add("success");
-  li.innerHTML = result;
-  outputList.prepend(li);
+  li.classList.add(type);
+  li.innerHTML = message;
+  elements.outputList.prepend(li);
 }
 
 function resetForm() {
-  bypassForm.reset();
+  elements.bypassForm.reset();
 }
 
 function getErrorMessage(message) {
@@ -29,10 +49,10 @@ function getErrorMessage(message) {
 async function onFormSubmit(event) {
   event.preventDefault();
 
-  const url = urlInput.value.trim();
+  const url = elements.urlInput.value.trim();
 
   if (!url) {
-    return insertFailureResult("URL is required");
+    return insertResult("failure", "URL is required");
   }
 
   try {
@@ -42,13 +62,15 @@ async function onFormSubmit(event) {
       body: JSON.stringify({ url }),
     });
 
-    const data = await response.json();
-
-    response.ok
-      ? insertSuccessResult(data.result)
-      : insertFailureResult(getErrorMessage(data.message));
+    if (!response.ok) {
+      const data = await response.json();
+      insertResult("failure", getErrorMessage(data.message));
+    } else {
+      const data = await response.json();
+      insertResult("success", data.result);
+    }
   } catch (e) {
-    insertFailureResult(e.message);
+    insertResult("failure", `Error: ${e.message}`);
   }
 
   resetForm();
@@ -59,6 +81,19 @@ function onClearButtonClick() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  bypassForm.addEventListener("submit", onFormSubmit);
-  clearBtn.addEventListener("click", onClearButtonClick);
+  elements.bypassForm.addEventListener("submit", onFormSubmit);
+  elements.clearBtn.addEventListener("click", onClearButtonClick);
+
+  getSupportedServices().then((services) => {
+    if (services.length === 0) {
+      insertResult("failure", "No supported services found.");
+      return;
+    }
+
+    services.forEach((service) => {
+      const li = document.createElement("li");
+      li.innerHTML = service;
+      elements.supportedServicesList.appendChild(li);
+    });
+  });
 });
