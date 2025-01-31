@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+}
+
+input {
+  display: block;
+  width: 100%;
+}
+
+.failure {
+  background-color: lightsalmon;
+}
+
+.success {
+  background-color: lightgreen;
+}
+
+#results-container {
+  display: flex;
+  flex-direction: row;
+}
+
+#results-container > div:nth-child(1) {
+  flex: 0 0 80%;
+}
+
+#results-container > div:nth-child(2) {
+  flex: 0 0 20%;
+}
+
+@media (max-width: 768px) {
+  #results-container {
+    flex-direction: column;
+  }
+
+  #results-container > div {
+    flex: 0 0 100%;
+  }
+}

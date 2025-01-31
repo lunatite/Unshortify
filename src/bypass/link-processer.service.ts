@@ -1,5 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import axios from "axios";
+import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
@@ -12,6 +11,7 @@ import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 @Injectable()
 export class LinkProcessorService {
   private readonly serviceMap: Map<string, LinkProcessorHandler>;
+  private readonly supportedServices: string[];
 
   constructor(
     adFocusService: AdFocusService,
@@ -30,6 +30,8 @@ export class LinkProcessorService {
     this.serviceMap.set("lootdest.org", lootlabsService);
     this.serviceMap.set("loot-link.com", lootlabsService);
     this.serviceMap.set("linkvertise.com", linkvertiseService);
+
+    this.supportedServices = Array.from(this.serviceMap.keys());
   }
 
   async process(url: URL) {
@@ -45,5 +47,9 @@ export class LinkProcessorService {
       name: linkProcessingService.name,
       result,
     };
+  }
+
+  async getSupportedServices() {
+    return this.supportedServices;
   }
 }
