@@ -9,6 +9,8 @@ eslint.config.mjs
 
 # Docker related files
 .dockerignore
+Dockerfile
+docker-compose.yml
 
 # IDE-specific files
 .vscode/
