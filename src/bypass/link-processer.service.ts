@@ -23,6 +23,7 @@ export class LinkProcessorService {
   ) {
     this.serviceMap = new Map();
 
+    this.serviceMap.set("www.sub2get.com", sub2getService);
     this.serviceMap.set("sub2get.com", sub2getService);
 
     this.serviceMap.set("bst.gg", boostInkService);
