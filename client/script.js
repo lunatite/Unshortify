@@ -31,6 +31,15 @@ async function getSupportedServices() {
   }
 }
 
+function isValidUrl(input) {
+  try {
+    new URL(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function insertResult(type, message) {
   const li = document.createElement("li");
   li.classList.add(type);
@@ -51,8 +60,14 @@ async function onFormSubmit(event) {
 
   const url = elements.urlInput.value.trim();
 
-  if (!url) {
+  if (!isValidUrl(url)) {
     return insertResult("failure", "URL is required");
+  }
+
+  const hostname = new URL(url).hostname;
+
+  if (!supportedServices.includes(hostname)) {
+    return insertResult("failure", `${hostname} is not supported`);
   }
 
   try {
