@@ -1,4 +1,4 @@
-import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
+import { Controller, Post, Body, Get } from "@nestjs/common";
 import { LinkProcessorService } from "./link-processer.service";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 
@@ -12,5 +12,10 @@ export class BypassController {
     const result = await this.service.process(new URL(url));
 
     return result;
+  }
+
+  @Get("/supported")
+  getSupportedServices() {
+    return this.service.getSupportedServices();
   }
 }
