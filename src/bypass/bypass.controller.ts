@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from "@nestjs/common";
+import { Controller, Post, Body, Get, HttpCode } from "@nestjs/common";
 import { LinkProcessorService } from "./link-processer.service";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 
@@ -7,6 +7,7 @@ export class BypassController {
   constructor(private readonly service: LinkProcessorService) {}
 
   @Post("/")
+  @HttpCode(200)
   async processLink(@Body() dto: BypassLinkDto) {
     const { url } = dto;
     const result = await this.service.process(new URL(url));

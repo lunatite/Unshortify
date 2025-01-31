@@ -1,5 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import axios from "axios";
+import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
