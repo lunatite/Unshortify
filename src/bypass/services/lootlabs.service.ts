@@ -1,5 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import axios from "axios";
+import * as WebSocket from "ws";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
