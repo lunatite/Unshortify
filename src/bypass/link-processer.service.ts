@@ -5,8 +5,9 @@ import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
-import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
+import { RekoniseService } from "./services/rekonise.service";
+import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 
 @Injectable()
 export class LinkProcessorService {
@@ -20,6 +21,7 @@ export class LinkProcessorService {
     mBoostMeService: MBoostMeService,
     sub2getService: Sub2GetService,
     linkvertiseService: LinkvertiseService,
+    rekoniseService: RekoniseService,
   ) {
     this.serviceMap = new Map();
 
@@ -36,6 +38,7 @@ export class LinkProcessorService {
     this.serviceMap.set("lootdest.org", lootlabsService);
     this.serviceMap.set("loot-link.com", lootlabsService);
     this.serviceMap.set("linkvertise.com", linkvertiseService);
+    this.serviceMap.set("rekonise.com", rekoniseService);
 
     this.supportedServices = Array.from(this.serviceMap.keys());
   }
