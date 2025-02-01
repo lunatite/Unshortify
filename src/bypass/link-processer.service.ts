@@ -41,8 +41,11 @@ export class LinkProcessorService {
 
     this.serviceMap.set("adfoc.us", adFocusService);
     this.serviceMap.set("mboost.me", mBoostMeService);
+
     this.serviceMap.set("lootdest.org", lootlabsService);
     this.serviceMap.set("loot-link.com", lootlabsService);
+    this.serviceMap.set("loot-links.com", lootlabsService);
+
     this.serviceMap.set("linkvertise.com", linkvertiseService);
     this.serviceMap.set("rekonise.com", rekoniseService);
     this.serviceMap.set("sub2unlock.me", sub2UnlockService);
