@@ -7,6 +7,7 @@ import { Sub2GetService } from "./services/sub2get.service";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 import { RekoniseService } from "./services/rekonise.service";
 import { Sub2UnlockService } from "./services/sub2unlock.service";
+import { SubFinalService } from "./services/subfinal.service";
 import { LinkProcessorService } from "./link-processer.service";
 import { BypassController } from "./bypass.controller";
 
@@ -21,6 +22,7 @@ import { BypassController } from "./bypass.controller";
     LinkProcessorService,
     RekoniseService,
     Sub2UnlockService,
+    SubFinalService,
   ],
   controllers: [BypassController],
   exports: [LinkProcessorService],

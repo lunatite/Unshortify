@@ -8,6 +8,7 @@ import { Sub2GetService } from "./services/sub2get.service";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 import { RekoniseService } from "./services/rekonise.service";
 import { Sub2UnlockService } from "./services/sub2unlock.service";
+import { SubFinalService } from "./services/subfinal.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 
 @Injectable()
@@ -24,6 +25,7 @@ export class LinkProcessorService {
     linkvertiseService: LinkvertiseService,
     rekoniseService: RekoniseService,
     sub2UnlockService: Sub2UnlockService,
+    subFinalService: SubFinalService,
   ) {
     this.serviceMap = new Map();
 
@@ -42,6 +44,7 @@ export class LinkProcessorService {
     this.serviceMap.set("linkvertise.com", linkvertiseService);
     this.serviceMap.set("rekonise.com", rekoniseService);
     this.serviceMap.set("sub2unlock.me", sub2UnlockService);
+    this.serviceMap.set("subfinal.com", subFinalService);
 
     this.supportedServices = Array.from(this.serviceMap.keys());
   }
