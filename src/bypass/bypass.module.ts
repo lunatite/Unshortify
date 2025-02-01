@@ -5,6 +5,7 @@ import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
 import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
+import { RekoniseService } from "./services/rekonise.service";
 import { LinkProcessorService } from "./link-processer.service";
 import { BypassController } from "./bypass.controller";
 
@@ -17,6 +18,7 @@ import { BypassController } from "./bypass.controller";
     Sub2GetService,
     LinkvertiseService,
     LinkProcessorService,
+    RekoniseService,
   ],
   controllers: [BypassController],
   exports: [LinkProcessorService],
