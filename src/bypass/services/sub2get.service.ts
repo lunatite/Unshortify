@@ -5,18 +5,16 @@ import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { CacheService } from "./shared/cache/cache.service";
 
-export class Sub2GetService implements LinkProcessorHandler {
+export class Sub2GetService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   public readonly name = "Sub2Get";
 
-  constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
-
-  private async getFromCache(id: string): Promise<string | null> {
-    return this.cache.get<string>(`${this.name}-${id}`) || null;
-  }
-
-  private async storeInCache(id: string, value: string): Promise<void> {
-    await this.cache.set(`${this.name}-${id}`, value, 0);
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
   }
 
   private async fetchBypassedLink(url: URL): Promise<string> {
@@ -41,10 +39,10 @@ export class Sub2GetService implements LinkProcessorHandler {
       throw new MissingParameterError("l");
     }
 
-    const cachedData = await this.getFromCache(linkId);
+    const cachedLink = await this.getFromCache<string>(linkId);
 
-    if (cachedData !== null) {
-      return cachedData;
+    if (cachedLink !== null) {
+      return cachedLink;
     }
 
     const bypassedLink = await this.fetchBypassedLink(url);
