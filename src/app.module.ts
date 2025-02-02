@@ -1,5 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { CacheModule } from "@nestjs/cache-manager";
+import KeyvRedis from "@keyv/redis";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
 
@@ -8,6 +10,11 @@ import { BypassModule } from "./bypass/bypass.module";
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "client"),
     }),
+    CacheModule.register({
+      stores: new KeyvRedis("redis://localhost:6379"),
+      isGlobal: true,
+    }),
+
     BypassModule,
   ],
   controllers: [],
