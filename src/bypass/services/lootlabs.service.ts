@@ -1,9 +1,11 @@
-import { InternalServerErrorException } from "@nestjs/common";
+import { Inject, InternalServerErrorException } from "@nestjs/common";
 import axios from "axios";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import * as WebSocket from "ws";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
+import { CacheService } from "./shared/cache/cache.service";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -35,10 +37,18 @@ export type LootLabsConfigKey =
   | "SHOW_UNLOCKER"
   | "TIER_ID";
 
-export class LootLabsService implements LinkProcessorHandler {
+export class LootLabsService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   public readonly name = "Lootlabs.gg";
 
   private readonly designId = 102;
+  private readonly dayInMilliseconds = 86400000;
+
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+  }
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
@@ -230,8 +240,16 @@ export class LootLabsService implements LinkProcessorHandler {
   }
 
   async resolve(url: URL) {
-    if (url.pathname !== "/s" || !url.search.split("?")[1]) {
+    const id = url.search.split("?")[1];
+
+    if (url.pathname !== "/s" || !id) {
       throw new MissingParameterError("s");
+    }
+
+    const cachedPublisherLink = await this.getFromCache<string>(id);
+
+    if (cachedPublisherLink) {
+      return cachedPublisherLink;
     }
 
     const { key, actions } = await this.fetchTaskActions(url);
@@ -246,6 +264,8 @@ export class LootLabsService implements LinkProcessorHandler {
       wsUrl,
       this.decodePublisherLink,
     );
+
+    await this.storeInCache(id, decodedPublisherLink, this.dayInMilliseconds);
 
     return decodedPublisherLink;
   }
