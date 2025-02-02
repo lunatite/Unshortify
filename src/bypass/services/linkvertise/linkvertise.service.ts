@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
@@ -8,9 +9,17 @@ import * as https from "https";
 import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
+import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
+import { toUnixTimestamp } from "src/utils/toUnixTimestamp";
+import { CacheService } from "../shared/cache/cache.service";
 
 export type AccountResponse = {
   user_token: string;
+};
+
+export type LinkvertiseCacheData = {
+  result: string;
+  lastEditAtSeconds: number;
 };
 
 export type DetailPageContentResponse = {
@@ -20,6 +29,7 @@ export type DetailPageContentResponse = {
       premium_subscription_active: null;
       link: {
         is_premium_only_link: boolean;
+        last_edit_at: string;
       };
     };
   };
@@ -51,13 +61,18 @@ export type DetailPageTargetResponse = {
 };
 
 @Injectable()
-export class LinkvertiseService implements LinkProcessorHandler {
+export class LinkvertiseService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   public readonly name = "Linkvertise";
   private readonly httpsAgent;
   private readonly graphqlUrl;
   private readonly defaultWaitTime = 10;
 
-  constructor() {
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+
     // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
     this.httpsAgent = new https.Agent({
       ciphers: "TLS_AES_128_GCM_SHA256",
@@ -105,7 +120,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
           },
         },
         query:
-          "mutation getDetailPageContent($linkIdentificationInput: PublicLinkIdentificationInput!, $origin: String, $additional_data: CustomAdOfferProviderAdditionalData!) {\n  getDetailPageContent(\n    linkIdentificationInput: $linkIdentificationInput\n    origin: $origin\n    additional_data: $additional_data\n  ) {\n    access_token\n premium_subscription_active\n    link {\n is_premium_only_link\n }\n }\n}",
+          "mutation getDetailPageContent($linkIdentificationInput: PublicLinkIdentificationInput!, $origin: String, $additional_data: CustomAdOfferProviderAdditionalData!) {\n  getDetailPageContent(\n    linkIdentificationInput: $linkIdentificationInput\n    origin: $origin\n    additional_data: $additional_data\n  ) {\n    access_token\n premium_subscription_active\n    link {\n is_premium_only_link\n \n last_edit_at \n}\n }\n}",
       },
     );
 
@@ -181,6 +196,15 @@ export class LinkvertiseService implements LinkProcessorHandler {
     }
 
     const detailPageContent = await this.getDetailPageContent(userId, name);
+    const lastEditAtSeconds = toUnixTimestamp(
+      detailPageContent.link.last_edit_at,
+    );
+
+    const cachedData = await this.getFromCache<LinkvertiseCacheData>(name);
+
+    if (cachedData && cachedData.lastEditAtSeconds === lastEditAtSeconds) {
+      return cachedData.result;
+    }
 
     if (detailPageContent.link.is_premium_only_link) {
       throw new BadRequestException(
@@ -212,10 +236,16 @@ export class LinkvertiseService implements LinkProcessorHandler {
       targetToken,
     );
 
-    if (detailPageTarget.type === "URL") {
-      return detailPageTarget.url;
-    }
+    const result =
+      detailPageTarget.type === "URL"
+        ? detailPageTarget.url
+        : detailPageTarget.paste;
 
-    return detailPageTarget.paste;
+    await this.storeInCache<LinkvertiseCacheData>(name, {
+      lastEditAtSeconds,
+      result,
+    });
+
+    return result;
   }
 }

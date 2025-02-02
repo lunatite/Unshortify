@@ -51,7 +51,7 @@ export class Sub2GetService implements LinkProcessorHandler {
 
     // The website appears to be down at the moment, and the URL cannot be edited once created.
     // Revisit this later.
-    // await this.storeInCache(linkId, bypassedLink);
+    await this.storeInCache(linkId, bypassedLink);
 
     return bypassedLink;
   }
