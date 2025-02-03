@@ -1,10 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
+import { CacheService } from "./shared/cache/cache.service";
 
 export type Sub2UnlockResponse = {
   status: "success" | "error";
@@ -13,8 +15,15 @@ export type Sub2UnlockResponse = {
 };
 
 @Injectable()
-export class Sub2UnlockService implements LinkProcessorHandler {
+export class Sub2UnlockService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   public readonly name = "Sub2Unlock";
+
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+  }
 
   private extractFormValues(html: string) {
     const $ = cheerio.load(html);
@@ -50,11 +59,7 @@ export class Sub2UnlockService implements LinkProcessorHandler {
     });
   }
 
-  async resolve(url: URL) {
-    if (url.pathname === "/") {
-      throw new InvalidPathException("/{id}");
-    }
-
+  private async fetchBypassedLink(url: URL) {
     const { data: htmlContent, headers } = await axios.get(url.href);
     const formValues = this.extractFormValues(htmlContent);
 
@@ -95,5 +100,23 @@ export class Sub2UnlockService implements LinkProcessorHandler {
     }
 
     return apiData.url;
+  }
+
+  async resolve(url: URL) {
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/{id}");
+    }
+
+    const id = url.pathname.split("/")[1];
+    const cachedBypassedLink = await this.getFromCache<string>(id);
+
+    if (cachedBypassedLink) {
+      return cachedBypassedLink;
+    }
+
+    const bypassedLink = await this.fetchBypassedLink(url);
+    await this.storeInCache(id, bypassedLink, 1000 * 60 * 60 * 24);
+
+    return bypassedLink;
   }
 }
