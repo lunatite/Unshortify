@@ -1,21 +1,26 @@
+import { Inject } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { CacheService } from "./shared/cache/cache.service";
 
-export class BoostInkService implements LinkProcessorHandler {
+export class BoostInkService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
   public readonly name = "Boost.Ink";
+  private readonly twoHoursToMilliseconds = 2 * 60 * 60 * 1000;
 
-  async resolve(url: URL) {
-    const path = url.pathname;
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+  }
 
-    if (path === "/") {
-      throw new InvalidPathException("/{id}");
-    }
-
+  private async fetchBypassedLink(url: URL) {
     const { data: htmlContent } = await axios.get(url.href, {
       responseType: "text",
     });
@@ -31,6 +36,24 @@ export class BoostInkService implements LinkProcessorHandler {
     }
 
     const bypassedLink = decodeBase64(encodedBypassedLink);
+    return bypassedLink;
+  }
+
+  async resolve(url: URL) {
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/{id}");
+    }
+
+    const id = url.pathname.split("/")[1];
+    const cachedBypassedLink = await this.getFromCache<string>(id);
+
+    if (cachedBypassedLink) {
+      return cachedBypassedLink;
+    }
+
+    const bypassedLink = await this.fetchBypassedLink(url);
+
+    await this.storeInCache(id, bypassedLink, this.twoHoursToMilliseconds);
     return bypassedLink;
   }
 }
