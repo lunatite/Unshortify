@@ -22,7 +22,7 @@ export class SubFinalService
   }
 
   private async fetchBypassedLink(id: string) {
-    const { data: htmlContent } = await axios.get(
+    const { data: htmlContent } = await axios.get<string>(
       `https://subfinal.com/final.php?$=${id}&own=owner`,
     );
 

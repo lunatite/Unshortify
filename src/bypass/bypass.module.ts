@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { CacheModule } from "@nestjs/cache-manager";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
@@ -12,9 +11,11 @@ import { SubFinalService } from "./services/subfinal.service";
 import { LinkProcessorService } from "./link-processer.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { BypassController } from "./bypass.controller";
+import { HttpClientService } from "src/common/services/http-client.service";
 
 @Module({
   providers: [
+    HttpClientService,
     AdFocusService,
     BoostInkService,
     LootLabsService,

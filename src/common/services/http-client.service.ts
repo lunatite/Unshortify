@@ -6,7 +6,9 @@ import axios, {
   Method,
 } from "axios";
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable({
+  scope: Scope.TRANSIENT,
+})
 export class HttpClientService {
   private readonly axiosInstance: AxiosInstance;
 
