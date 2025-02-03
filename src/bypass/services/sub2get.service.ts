@@ -12,6 +12,7 @@ export class Sub2GetService
   implements LinkProcessorHandler
 {
   public readonly name = "Sub2Get";
+  protected ttl?: number;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     super(cache);

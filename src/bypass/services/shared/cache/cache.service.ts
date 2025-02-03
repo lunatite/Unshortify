@@ -2,6 +2,7 @@ import { Cache } from "@nestjs/cache-manager";
 
 export abstract class CacheService {
   protected abstract name: string;
+  protected abstract ttl?: number;
 
   constructor(private readonly cache: Cache) {
     if (!cache) {
@@ -14,6 +15,7 @@ export abstract class CacheService {
   }
 
   protected async storeInCache<T>(id: string, value: T, ttl?: number) {
-    await this.cache.set(`${this.name}-${id}`, value, ttl);
+    const cacheTTL = ttl || this.ttl;
+    await this.cache.set(`${this.name}-${id}`, value, cacheTTL);
   }
 }

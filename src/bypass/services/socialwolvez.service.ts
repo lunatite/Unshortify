@@ -10,6 +10,7 @@ import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { CacheService } from "./shared/cache/cache.service";
+import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class SocialWolvezService
@@ -17,6 +18,7 @@ export class SocialWolvezService
   implements LinkProcessorHandler
 {
   public readonly name = "SocialWolvez";
+  protected ttl = MS_IN_HOUR * 2;
   private readonly requiredPathSegments = 4;
   private readonly targetNuxtDataIndex = 5;
 
@@ -62,7 +64,7 @@ export class SocialWolvezService
     }
 
     const bypassedLink = await this.fetchBypassLink(url);
-    await this.storeInCache(id, bypassedLink, 1000 * 60 * 60 * 24);
+    await this.storeInCache(id, bypassedLink);
 
     return bypassedLink;
   }

@@ -5,6 +5,7 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
+import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class SubFinalService
@@ -12,6 +13,8 @@ export class SubFinalService
   implements LinkProcessorHandler
 {
   public readonly name = "SubFinal";
+  protected readonly ttl = MS_IN_HOUR;
+
   private readonly fileRegex = /window\.open\("(.*)","_self"\);/;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
@@ -60,7 +63,7 @@ export class SubFinalService
     }
 
     const bypassedLink = await this.fetchBypassedLink(id);
-    await this.storeInCache(id, bypassedLink, 1000 * 60 * 60 * 24);
+    await this.storeInCache(id, bypassedLink);
 
     return bypassedLink;
   }

@@ -4,6 +4,7 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { CacheService } from "./shared/cache/cache.service";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class RekoniseService
@@ -11,6 +12,7 @@ export class RekoniseService
   implements LinkProcessorHandler
 {
   public readonly name = "Rekonise";
+  protected ttl = MS_IN_HOUR * 2;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     super(cache);
@@ -38,7 +40,7 @@ export class RekoniseService
 
     const bypassedLink = await this.fetchBypassedLink(id);
 
-    await this.storeInCache(id, bypassedLink, 1000 * 60 * 60 * 24);
+    await this.storeInCache(id, bypassedLink);
     return bypassedLink;
   }
 }

@@ -7,14 +7,16 @@ import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
+import { MS_IN_HOUR } from "src/common/constants";
 
 export class BoostInkService
   extends CacheService
   implements LinkProcessorHandler
 {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
+
   public readonly name = "Boost.Ink";
-  private readonly twoHoursToMilliseconds = 2 * 60 * 60 * 1000;
+  protected ttl = MS_IN_HOUR * 2;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     super(cache);
@@ -53,7 +55,7 @@ export class BoostInkService
 
     const bypassedLink = await this.fetchBypassedLink(url);
 
-    await this.storeInCache(id, bypassedLink, this.twoHoursToMilliseconds);
+    await this.storeInCache(id, bypassedLink);
     return bypassedLink;
   }
 }

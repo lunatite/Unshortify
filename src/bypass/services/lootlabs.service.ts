@@ -6,6 +6,7 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
 import { CacheService } from "./shared/cache/cache.service";
+import { MS_IN_HOUR } from "src/common/constants";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -42,9 +43,9 @@ export class LootLabsService
   implements LinkProcessorHandler
 {
   public readonly name = "Lootlabs.gg";
+  protected ttl = MS_IN_HOUR * 2;
 
   private readonly designId = 102;
-  private readonly dayInMilliseconds = 86400000;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     super(cache);
@@ -265,7 +266,7 @@ export class LootLabsService
       this.decodePublisherLink,
     );
 
-    await this.storeInCache(id, decodedPublisherLink, this.dayInMilliseconds);
+    await this.storeInCache(id, decodedPublisherLink);
 
     return decodedPublisherLink;
   }

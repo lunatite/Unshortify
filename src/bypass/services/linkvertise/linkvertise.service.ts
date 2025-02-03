@@ -66,6 +66,7 @@ export class LinkvertiseService
   implements LinkProcessorHandler
 {
   public readonly name = "Linkvertise";
+  protected ttl;
   private readonly httpsAgent;
   private readonly graphqlUrl;
   private readonly defaultWaitTime = 10;

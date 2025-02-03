@@ -5,14 +5,15 @@ import { CacheService } from "./shared/cache/cache.service";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { MS_IN_HOUR } from "src/common/constants";
 
 export class AdFocusService
   extends CacheService
   implements LinkProcessorHandler
 {
   public readonly name = "Adfocus";
+  protected ttl = MS_IN_HOUR * 2;
   private readonly clickUrlRegex = /var click_url\s*=\s*"([^"]+)"/;
-  private readonly twoHoursToMilliseconds = 2 * 60 * 60 * 1000;
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     super(cache);
@@ -50,7 +51,7 @@ export class AdFocusService
     }
 
     const bypassedLink = await this.fetchBypassedLink(url);
-    await this.storeInCache(id, bypassedLink, this.twoHoursToMilliseconds);
+    await this.storeInCache(id, bypassedLink);
 
     return bypassedLink;
   }
