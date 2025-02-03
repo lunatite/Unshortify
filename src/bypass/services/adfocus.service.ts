@@ -1,17 +1,25 @@
+import { Inject } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import axios from "axios";
+import { CacheService } from "./shared/cache/cache.service";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { MS_IN_HOUR } from "src/common/constants";
 
-export class AdFocusService implements LinkProcessorHandler {
-  public readonly name = "Adfoc.us";
+export class AdFocusService
+  extends CacheService
+  implements LinkProcessorHandler
+{
+  public readonly name = "Adfocus";
+  protected ttl = MS_IN_HOUR * 2;
   private readonly clickUrlRegex = /var click_url\s*=\s*"([^"]+)"/;
 
-  async resolve(url: URL): Promise<string> {
-    if (url.pathname === "/") {
-      throw new InvalidPathException("/${id}");
-    }
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+  }
 
+  private async fetchBypassedLink(url: URL) {
     const { data: htmlContent } = await axios.get(url.href, {
       responseType: "text",
       headers: {
@@ -28,5 +36,23 @@ export class AdFocusService implements LinkProcessorHandler {
 
     const bypassedUrl = bypassedUrlMatch[1];
     return bypassedUrl;
+  }
+
+  async resolve(url: URL): Promise<string> {
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/${id}");
+    }
+
+    const id = url.pathname.split("/")[1];
+    const cachedBypassedLink = await this.getFromCache<string>(id);
+
+    if (cachedBypassedLink) {
+      return cachedBypassedLink;
+    }
+
+    const bypassedLink = await this.fetchBypassedLink(url);
+    await this.storeInCache(id, bypassedLink);
+
+    return bypassedLink;
   }
 }
