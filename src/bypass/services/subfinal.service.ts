@@ -1,11 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
-import axios from "axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
+import { HttpClientFactory } from "src/http-client/http-client.factory";
 
 @Injectable()
 export class SubFinalService
@@ -17,12 +17,17 @@ export class SubFinalService
 
   private readonly fileRegex = /window\.open\("(.*)","_self"\);/;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClientFactory: HttpClientFactory,
+  ) {
     super(cache);
   }
 
   private async fetchBypassedLink(id: string) {
-    const { data: htmlContent } = await axios.get<string>(
+    const client = this.httpClientFactory.createClient();
+
+    const { data: htmlContent } = await client.get<string>(
       `https://subfinal.com/final.php?$=${id}&own=owner`,
     );
 

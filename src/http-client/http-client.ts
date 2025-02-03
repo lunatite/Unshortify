@@ -1,15 +1,12 @@
-import { Injectable, Scope } from "@nestjs/common";
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
   Method,
 } from "axios";
+import * as https from "https";
 
-@Injectable({
-  scope: Scope.TRANSIENT,
-})
-export class HttpClientService {
+export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
 
   constructor() {
@@ -19,6 +16,10 @@ export class HttpClientService {
         "User-Agent":
           "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
       },
+      // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
+      httpsAgent: new https.Agent({
+        ciphers: "TLS_AES_128_GCM_SHA256",
+      }),
     });
   }
 

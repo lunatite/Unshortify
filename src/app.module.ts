@@ -5,6 +5,7 @@ import { createKeyv } from "@keyv/redis";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { ProxyProviderModule } from "./proxy-provider/proxy-provider.module";
+import { HttpClientModule } from "./http-client/http-client.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProxyProviderModule } from "./proxy-provider/proxy-provider.module";
       isGlobal: true,
       stores: [createKeyv("redis://localhost:6379")],
     }),
+    HttpClientModule,
     BypassModule,
     ProxyProviderModule,
   ],

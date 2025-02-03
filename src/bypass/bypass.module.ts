@@ -11,11 +11,9 @@ import { SubFinalService } from "./services/subfinal.service";
 import { LinkProcessorService } from "./link-processer.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { BypassController } from "./bypass.controller";
-import { HttpClientService } from "src/common/services/http-client.service";
 
 @Module({
   providers: [
-    HttpClientService,
     AdFocusService,
     BoostInkService,
     LootLabsService,
