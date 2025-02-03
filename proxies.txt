@@ -1,3 +1,1 @@
-http://proxy1.com:8080
-http://proxy2.com:8080
-http://proxy3.com:8080
+http://103.247.23.181:1111
