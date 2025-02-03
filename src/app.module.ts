@@ -4,6 +4,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { createKeyv } from "@keyv/redis";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
+import { ProxyProviderModule } from "./proxy-provider/proxy-provider.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { BypassModule } from "./bypass/bypass.module";
       stores: [createKeyv("redis://localhost:6379")],
     }),
     BypassModule,
+    ProxyProviderModule,
   ],
   controllers: [],
   providers: [],
