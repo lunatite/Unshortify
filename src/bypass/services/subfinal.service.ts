@@ -1,13 +1,37 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import axios from "axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { CacheService } from "./shared/cache/cache.service";
 
 @Injectable()
-export class SubFinalService implements LinkProcessorHandler {
+export class SubFinalService
+  extends CacheService
+  implements LinkProcessorHandler
+{
   public readonly name = "SubFinal";
   private readonly fileRegex = /window\.open\("(.*)","_self"\);/;
+
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+    super(cache);
+  }
+
+  private async fetchBypassedLink(id: string) {
+    const { data: htmlContent } = await axios.get(
+      `https://subfinal.com/final.php?$=${id}&own=owner`,
+    );
+
+    const fileRegexMatch = this.fileRegex.exec(htmlContent);
+
+    if (!fileRegexMatch || fileRegexMatch[1] === undefined) {
+      throw new BypassLinkNotFoundException();
+    }
+
+    const bypassedLink = fileRegexMatch[1];
+    return bypassedLink;
+  }
 
   async resolve(url: URL) {
     if (url.pathname === "/") {
@@ -29,17 +53,15 @@ export class SubFinalService implements LinkProcessorHandler {
       );
     }
 
-    const { data: htmlContent } = await axios.get(
-      `https://subfinal.com/final.php?$=${id}&own=owner`,
-    );
+    const cachedBypassedLink = await this.getFromCache<string>(id);
 
-    const fileRegexMatch = this.fileRegex.exec(htmlContent);
-
-    if (!fileRegexMatch || fileRegexMatch[1] === undefined) {
-      throw new BypassLinkNotFoundException();
+    if (cachedBypassedLink) {
+      return cachedBypassedLink;
     }
 
-    const bypassedLink = fileRegexMatch[1];
+    const bypassedLink = await this.fetchBypassedLink(id);
+    await this.storeInCache(id, bypassedLink, 1000 * 60 * 60 * 24);
+
     return bypassedLink;
   }
 }
