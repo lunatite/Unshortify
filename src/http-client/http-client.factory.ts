@@ -8,8 +8,6 @@ export class HttpClientFactory {
 
   createClient(): HttpClient {
     const proxy = this.proxyProvider.getRandomProxy();
-    console.log(proxy);
-
-    return new HttpClient();
+    return new HttpClient(proxy);
   }
 }

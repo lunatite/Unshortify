@@ -5,11 +5,16 @@ import axios, {
   Method,
 } from "axios";
 import * as https from "https";
+import { HttpsProxyAgent } from "https-proxy-agent";
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
 
-  constructor() {
+  constructor(proxy: string) {
+    const proxyAgent = new HttpsProxyAgent(proxy, {
+      ciphers: "TLS_AES_128_GCM_SHA256",
+    });
+
     this.axiosInstance = axios.create({
       timeout: 5000,
       headers: {
@@ -17,9 +22,7 @@ export class HttpClient {
           "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
       },
       // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
-      httpsAgent: new https.Agent({
-        ciphers: "TLS_AES_128_GCM_SHA256",
-      }),
+      httpsAgent: proxyAgent,
     });
   }
 

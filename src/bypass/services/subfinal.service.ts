@@ -27,6 +27,8 @@ export class SubFinalService
   private async fetchBypassedLink(id: string) {
     const client = this.httpClientFactory.createClient();
 
+    // console.log((await client.get("https://api.ipify.org/?format=json")).data);
+
     const { data: htmlContent } = await client.get<string>(
       `https://subfinal.com/final.php?$=${id}&own=owner`,
     );
@@ -61,11 +63,11 @@ export class SubFinalService
       );
     }
 
-    const cachedBypassedLink = await this.getFromCache<string>(id);
+    // const cachedBypassedLink = await this.getFromCache<string>(id);
 
-    if (cachedBypassedLink) {
-      return cachedBypassedLink;
-    }
+    // if (cachedBypassedLink) {
+    //   return cachedBypassedLink;
+    // }
 
     const bypassedLink = await this.fetchBypassedLink(id);
     await this.storeInCache(id, bypassedLink);
