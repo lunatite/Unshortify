@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Inject } from "@nestjs/common";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { LinkProcessorHandler } from "../link-processor.types";
@@ -6,6 +5,7 @@ import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
+import { HttpClient } from "src/http-client/http-client";
 
 export class MBoostMeService
   extends CacheService
@@ -15,12 +15,15 @@ export class MBoostMeService
   protected ttl = MS_IN_HOUR * 2;
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClient: HttpClient,
+  ) {
     super(cache);
   }
 
   private async fetchBypassedLink(url: URL) {
-    const { data: htmlContent } = await axios.get(url.href, {
+    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
       responseType: "text",
     });
 
