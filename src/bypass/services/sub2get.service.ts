@@ -1,25 +1,13 @@
-import { Inject } from "@nestjs/common";
-import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { CacheService } from "./shared/cache/cache.service";
 import { HttpClient } from "src/http-client/http-client";
 
-export class Sub2GetService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+export class Sub2GetService implements LinkProcessorHandler {
   public readonly name = "Sub2Get";
-  protected ttl?: number;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
-  }
+  constructor(private readonly httpClient: HttpClient) {}
 
   private async fetchBypassedLink(url: URL): Promise<string> {
     const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
@@ -43,18 +31,7 @@ export class Sub2GetService
       throw new MissingParameterError("l");
     }
 
-    const cachedLink = await this.getFromCache<string>(linkId);
-
-    if (cachedLink !== null) {
-      return cachedLink;
-    }
-
     const bypassedLink = await this.fetchBypassedLink(url);
-
-    // The website appears to be down at the moment, and the URL cannot be edited once created.
-    // Revisit this later.
-    await this.storeInCache(linkId, bypassedLink);
-
     return bypassedLink;
   }
 }

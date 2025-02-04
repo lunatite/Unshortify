@@ -1,14 +1,11 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Injectable } from "@nestjs/common";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
-import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
-// import { HttpClientFactory } from "src/http-client/http-client.factory";
 import { HttpClient } from "src/http-client/http-client";
 
 export type Sub2UnlockResponse = {
@@ -18,19 +15,11 @@ export type Sub2UnlockResponse = {
 };
 
 @Injectable()
-export class Sub2UnlockService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+export class Sub2UnlockService implements LinkProcessorHandler {
   public readonly name = "Sub2Unlock";
   protected ttl = MS_IN_HOUR;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
-  }
+  constructor(private readonly httpClient: HttpClient) {}
 
   private extractFormValues(html: string) {
     const $ = cheerio.load(html);
@@ -114,16 +103,7 @@ export class Sub2UnlockService
       throw new InvalidPathException("/{id}");
     }
 
-    const id = url.pathname.split("/")[1];
-    const cachedBypassedLink = await this.getFromCache<string>(id);
-
-    if (cachedBypassedLink) {
-      return cachedBypassedLink;
-    }
-
     const bypassedLink = await this.fetchBypassedLink(url);
-    await this.storeInCache(id, bypassedLink);
-
     return bypassedLink;
   }
 }
