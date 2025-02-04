@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
@@ -11,6 +12,7 @@ import { Sub2UnlockService } from "./services/sub2unlock.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { SubFinalService } from "./services/subfinal.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
+import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class LinkProcessorService {
@@ -18,6 +20,7 @@ export class LinkProcessorService {
   private readonly supportedServices: string[];
 
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     adFocusService: AdFocusService,
     boostInkService: BoostInkService,
     lootlabsService: LootLabsService,
@@ -63,7 +66,17 @@ export class LinkProcessorService {
       throw new HostNotSupported(url);
     }
 
+    const cachedResult = await this.cache.get(url.href);
+
+    if (cachedResult !== null) {
+      return {
+        name: linkProcessingService.name,
+        result: cachedResult,
+      };
+    }
+
     const result = await linkProcessingService.resolve(url);
+    await this.cache.set(url.href, result, MS_IN_HOUR * 2);
 
     return {
       name: linkProcessingService.name,
