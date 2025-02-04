@@ -1,12 +1,14 @@
 import { Inject, InternalServerErrorException } from "@nestjs/common";
-import axios from "axios";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import * as WebSocket from "ws";
+import axios from "axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
 import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
+import { HttpClient } from "src/http-client/http-client";
+import { HttpsProxyAgent } from "https-proxy-agent";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -47,7 +49,10 @@ export class LootLabsService
 
   private readonly designId = 102;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClient: HttpClient,
+  ) {
     super(cache);
   }
 
@@ -113,7 +118,7 @@ export class LootLabsService
     cdnDomain: string,
     tId: string | number,
   ) {
-    const { data: rawData } = await axios.get<string>(
+    const { data: rawData } = await this.httpClient.get<string>(
       `https://${cdnDomain}?tid=${tId}&params_only=1`,
     );
 
@@ -139,7 +144,7 @@ export class LootLabsService
   }
 
   private async fetchTaskActions(url: URL) {
-    const { data: htmlContent } = await axios.get(url.href, {
+    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
       responseType: "text",
     });
 
@@ -163,7 +168,7 @@ export class LootLabsService
       tier_id: "1",
     };
 
-    const { data: taskActionsData } = await axios.post<
+    const { data: taskActionsData } = await this.httpClient.post<
       Array<LootLabsTaskAction>
     >("https://nerventualken.com/tc", payload);
 
@@ -175,7 +180,9 @@ export class LootLabsService
 
   private sendTelemetry(urid: number) {
     const url = `https://0.onsultingco.com/st?uid=${urid}&cat=14`;
-    axios.get(url);
+    // at least 60 seconds for this request to resolve
+    // disable the proxy agent if using a proxy it might timeout
+    this.httpClient.get(url, { timeout: 1000 * 70, httpsAgent: null });
   }
 
   private async connectAndDecodePublisherLink(
@@ -241,33 +248,38 @@ export class LootLabsService
   }
 
   async resolve(url: URL) {
-    const id = url.search.split("?")[1];
+    try {
+      const id = url.search.split("?")[1];
 
-    if (url.pathname !== "/s" || !id) {
-      throw new MissingParameterError("s");
+      if (url.pathname !== "/s" || !id) {
+        throw new MissingParameterError("s");
+      }
+
+      // const cachedPublisherLink = await this.getFromCache<string>(id);
+
+      // if (cachedPublisherLink) {
+      //   return cachedPublisherLink;
+      // }
+
+      const { key, actions } = await this.fetchTaskActions(url);
+
+      const urid = actions[0].urid;
+
+      this.sendTelemetry(urid);
+
+      const wsUrl =
+        "wss://0.onsultingco.com/c?uid=" + urid + "&cat=14&key=" + key;
+
+      const decodedPublisherLink = await this.connectAndDecodePublisherLink(
+        wsUrl,
+        this.decodePublisherLink,
+      );
+
+      // await this.storeInCache(id, decodedPublisherLink);
+
+      return decodedPublisherLink;
+    } catch (e) {
+      console.log(e.name);
     }
-
-    const cachedPublisherLink = await this.getFromCache<string>(id);
-
-    if (cachedPublisherLink) {
-      return cachedPublisherLink;
-    }
-
-    const { key, actions } = await this.fetchTaskActions(url);
-    const urid = actions[0].urid;
-
-    this.sendTelemetry(urid);
-
-    const wsUrl =
-      "wss://0.onsultingco.com/c?uid=" + urid + "&cat=14&key=" + key;
-
-    const decodedPublisherLink = await this.connectAndDecodePublisherLink(
-      wsUrl,
-      this.decodePublisherLink,
-    );
-
-    await this.storeInCache(id, decodedPublisherLink);
-
-    return decodedPublisherLink;
   }
 }

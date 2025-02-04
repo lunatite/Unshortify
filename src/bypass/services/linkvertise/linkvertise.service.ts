@@ -4,14 +4,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import axios, { Method } from "axios";
-import * as https from "https";
+import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
+import { HttpClient } from "src/http-client/http-client";
 import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
-import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import { toUnixTimestamp } from "src/utils/toUnixTimestamp";
 import { CacheService } from "../shared/cache/cache.service";
+import { Method } from "axios";
 
 export type AccountResponse = {
   user_token: string;
@@ -67,35 +67,25 @@ export class LinkvertiseService
 {
   public readonly name = "Linkvertise";
   protected ttl;
-  private readonly httpsAgent;
   private readonly graphqlUrl;
   private readonly defaultWaitTime = 10;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClient: HttpClient,
+  ) {
     super(cache);
-
-    // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
-    this.httpsAgent = new https.Agent({
-      ciphers: "TLS_AES_128_GCM_SHA256",
-    });
-
     this.graphqlUrl = "https://publisher.linkvertise.com/graphql";
   }
 
   private async request<T>(url: string, method: Method, data?: unknown) {
-    const response = await axios<T>({
-      url,
-      method,
-      data,
+    const response = await this.httpClient[method]<T>(url, data, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
+        Cookie: "laravel_session=0",
         Accept: "application/json",
         Host: "publisher.linkvertise.com",
         "Accept-Encoding": "gzip,deflate,br",
-        Cookie: "laravel_session=0",
       },
-      httpsAgent: this.httpsAgent,
     });
 
     return response.data;
@@ -104,7 +94,7 @@ export class LinkvertiseService
   private async getDetailPageContent(userId: string | number, url: string) {
     const response = await this.request<DetailPageContentResponse>(
       this.graphqlUrl,
-      "POST",
+      "post",
       {
         operationName: "getDetailPageContent",
         variables: {
@@ -135,7 +125,7 @@ export class LinkvertiseService
   ) {
     const response = await this.request<CompleteDetailPageContentResponse>(
       this.graphqlUrl,
-      "POST",
+      "post",
       {
         operationName: "completeDetailPageContent",
         variables: {
@@ -161,7 +151,7 @@ export class LinkvertiseService
   ) {
     const response = await this.request<DetailPageTargetResponse>(
       this.graphqlUrl,
-      "POST",
+      "get",
       {
         operationName: "getDetailPageTarget",
         variables: {

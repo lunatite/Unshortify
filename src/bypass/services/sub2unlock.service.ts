@@ -8,6 +8,8 @@ import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
 import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
+// import { HttpClientFactory } from "src/http-client/http-client.factory";
+import { HttpClient } from "src/http-client/http-client";
 
 export type Sub2UnlockResponse = {
   status: "success" | "error";
@@ -23,7 +25,10 @@ export class Sub2UnlockService
   public readonly name = "Sub2Unlock";
   protected ttl = MS_IN_HOUR;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClient: HttpClient,
+  ) {
     super(cache);
   }
 

@@ -13,6 +13,7 @@ export class HttpClient {
   constructor(proxy?: string) {
     let httpsAgent: https.Agent;
 
+    // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
     if (proxy) {
       httpsAgent = new HttpsProxyAgent(proxy, {
         ciphers: "TLS_AES_128_GCM_SHA256",
@@ -29,7 +30,6 @@ export class HttpClient {
         "User-Agent":
           "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
       },
-      // Cloudflare can detect that Node.js is making the request, so simply change the cipher.
       httpsAgent,
     });
   }

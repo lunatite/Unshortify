@@ -1,11 +1,11 @@
 import { Inject } from "@nestjs/common";
 import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
-import axios from "axios";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
+import { HttpClient } from "src/http-client/http-client";
 
 export class Sub2GetService
   extends CacheService
@@ -14,12 +14,15 @@ export class Sub2GetService
   public readonly name = "Sub2Get";
   protected ttl?: number;
 
-  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) cache: Cache,
+    private readonly httpClient: HttpClient,
+  ) {
     super(cache);
   }
 
   private async fetchBypassedLink(url: URL): Promise<string> {
-    const { data: htmlContent } = await axios.get(url.href, {
+    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
       responseType: "text",
     });
 

@@ -5,7 +5,7 @@ import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
-import { HttpClientFactory } from "src/http-client/http-client.factory";
+import { HttpClient } from "src/http-client/http-client";
 
 @Injectable()
 export class SubFinalService
@@ -19,15 +19,13 @@ export class SubFinalService
 
   constructor(
     @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClientFactory: HttpClientFactory,
+    private readonly httpClient: HttpClient,
   ) {
     super(cache);
   }
 
   private async fetchBypassedLink(id: string) {
-    const client = this.httpClientFactory.createClient();
-
-    const { data: htmlContent } = await client.get<string>(
+    const { data: htmlContent } = await this.httpClient.get<string>(
       `https://subfinal.com/final.php?$=${id}&own=owner`,
     );
 
