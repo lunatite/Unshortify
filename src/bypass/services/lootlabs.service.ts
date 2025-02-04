@@ -1,14 +1,9 @@
-import { Inject, InternalServerErrorException } from "@nestjs/common";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { InternalServerErrorException } from "@nestjs/common";
 import * as WebSocket from "ws";
-import axios from "axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
-import { CacheService } from "./shared/cache/cache.service";
-import { MS_IN_HOUR } from "src/common/constants";
 import { HttpClient } from "src/http-client/http-client";
-import { HttpsProxyAgent } from "https-proxy-agent";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -40,21 +35,12 @@ export type LootLabsConfigKey =
   | "SHOW_UNLOCKER"
   | "TIER_ID";
 
-export class LootLabsService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+export class LootLabsService implements LinkProcessorHandler {
   public readonly name = "Lootlabs.gg";
-  protected ttl = MS_IN_HOUR * 2;
 
   private readonly designId = 102;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
-  }
+  constructor(private readonly httpClient: HttpClient) {}
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
@@ -255,14 +241,7 @@ export class LootLabsService
         throw new MissingParameterError("s");
       }
 
-      // const cachedPublisherLink = await this.getFromCache<string>(id);
-
-      // if (cachedPublisherLink) {
-      //   return cachedPublisherLink;
-      // }
-
       const { key, actions } = await this.fetchTaskActions(url);
-
       const urid = actions[0].urid;
 
       this.sendTelemetry(urid);
@@ -274,8 +253,6 @@ export class LootLabsService
         wsUrl,
         this.decodePublisherLink,
       );
-
-      // await this.storeInCache(id, decodedPublisherLink);
 
       return decodedPublisherLink;
     } catch (e) {

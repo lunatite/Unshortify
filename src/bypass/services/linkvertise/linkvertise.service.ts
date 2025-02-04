@@ -1,16 +1,13 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import { HttpClient } from "src/http-client/http-client";
 import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
 import { toUnixTimestamp } from "src/utils/toUnixTimestamp";
-import { CacheService } from "../shared/cache/cache.service";
 import { Method } from "axios";
 
 export type AccountResponse = {
@@ -61,20 +58,12 @@ export type DetailPageTargetResponse = {
 };
 
 @Injectable()
-export class LinkvertiseService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+export class LinkvertiseService implements LinkProcessorHandler {
   public readonly name = "Linkvertise";
-  protected ttl;
   private readonly graphqlUrl;
   private readonly defaultWaitTime = 10;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
+  constructor(private readonly httpClient: HttpClient) {
     this.graphqlUrl = "https://publisher.linkvertise.com/graphql";
   }
 
@@ -191,12 +180,6 @@ export class LinkvertiseService
       detailPageContent.link.last_edit_at,
     );
 
-    const cachedData = await this.getFromCache<LinkvertiseCacheData>(name);
-
-    if (cachedData && cachedData.lastEditAtSeconds === lastEditAtSeconds) {
-      return cachedData.result;
-    }
-
     if (detailPageContent.link.is_premium_only_link) {
       throw new BadRequestException(
         "Link can only be accessed by premium users",
@@ -231,11 +214,6 @@ export class LinkvertiseService
       detailPageTarget.type === "URL"
         ? detailPageTarget.url
         : detailPageTarget.paste;
-
-    await this.storeInCache<LinkvertiseCacheData>(name, {
-      lastEditAtSeconds,
-      result,
-    });
 
     return result;
   }

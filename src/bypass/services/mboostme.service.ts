@@ -1,26 +1,17 @@
-import { Inject } from "@nestjs/common";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { CacheService } from "./shared/cache/cache.service";
 import { MS_IN_HOUR } from "src/common/constants";
 import { HttpClient } from "src/http-client/http-client";
 
-export class MBoostMeService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+@Injectable()
+export class MBoostMeService implements LinkProcessorHandler {
   public readonly name = "MBoost.me";
   protected ttl = MS_IN_HOUR * 2;
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
-  }
+  constructor(private readonly httpClient: HttpClient) {}
 
   private async fetchBypassedLink(url: URL) {
     const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
@@ -43,16 +34,7 @@ export class MBoostMeService
       throw new InvalidPathException("/a/{id}");
     }
 
-    const cachedBypassedLink = await this.getFromCache<string>(id);
-
-    if (cachedBypassedLink) {
-      return cachedBypassedLink;
-    }
-
     const bypassedLink = await this.fetchBypassedLink(url);
-
-    await this.storeInCache(id, bypassedLink);
-
     return bypassedLink;
   }
 }

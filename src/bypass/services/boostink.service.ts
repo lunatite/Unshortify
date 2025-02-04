@@ -1,29 +1,17 @@
-import { Inject } from "@nestjs/common";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Injectable } from "@nestjs/common";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { CacheService } from "./shared/cache/cache.service";
-import { MS_IN_HOUR } from "src/common/constants";
 import { HttpClient } from "src/http-client/http-client";
 
-export class BoostInkService
-  extends CacheService
-  implements LinkProcessorHandler
-{
+@Injectable()
+export class BoostInkService implements LinkProcessorHandler {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
-
   public readonly name = "Boost.Ink";
-  protected ttl = MS_IN_HOUR * 2;
 
-  constructor(
-    @Inject(CACHE_MANAGER) cache: Cache,
-    private readonly httpClient: HttpClient,
-  ) {
-    super(cache);
-  }
+  constructor(private readonly httpClient: HttpClient) {}
 
   private async fetchBypassedLink(url: URL) {
     const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
@@ -49,16 +37,7 @@ export class BoostInkService
       throw new InvalidPathException("/{id}");
     }
 
-    const id = url.pathname.split("/")[1];
-    const cachedBypassedLink = await this.getFromCache<string>(id);
-
-    if (cachedBypassedLink) {
-      return cachedBypassedLink;
-    }
-
     const bypassedLink = await this.fetchBypassedLink(url);
-
-    await this.storeInCache(id, bypassedLink);
     return bypassedLink;
   }
 }
