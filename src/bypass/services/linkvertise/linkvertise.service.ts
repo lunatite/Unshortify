@@ -3,12 +3,17 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
+import { Method } from "axios";
+import {
+  GET_COMPLETE_DETAIL_PAGE_CONTENT_QUERY,
+  GET_DETAIL_PAGE_CONTENT_QUERY,
+  GET_DETAIL_PAGE_TARGET_QUERY,
+} from "./graphql/page.queries";
 import { HttpClient } from "src/http-client/http-client";
 import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
 import { toUnixTimestamp } from "src/utils/toUnixTimestamp";
-import { Method } from "axios";
 
 export type AccountResponse = {
   user_token: string;
@@ -99,8 +104,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
             },
           },
         },
-        query:
-          "mutation getDetailPageContent($linkIdentificationInput: PublicLinkIdentificationInput!, $origin: String, $additional_data: CustomAdOfferProviderAdditionalData!) {\n  getDetailPageContent(\n    linkIdentificationInput: $linkIdentificationInput\n    origin: $origin\n    additional_data: $additional_data\n  ) {\n    access_token\n premium_subscription_active\n    link {\n is_premium_only_link\n \n last_edit_at \n}\n }\n}",
+        query: GET_DETAIL_PAGE_CONTENT_QUERY,
       },
     );
 
@@ -125,8 +129,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
             access_token: accessToken,
           },
         },
-        query:
-          "mutation completeDetailPageContent($linkIdentificationInput: PublicLinkIdentificationInput!, $completeDetailPageContentInput: CompleteDetailPageContentInput!) {\n  completeDetailPageContent(\n    linkIdentificationInput: $linkIdentificationInput\n    completeDetailPageContentInput: $completeDetailPageContentInput\n  ) {\n    CUSTOM_AD_STEP\n    TARGET\n    additional_target_access_information {\n      remaining_waiting_time\n      can_not_access\n      should_show_ads\n      has_long_paywall_duration\n }\n }\n}",
+        query: GET_COMPLETE_DETAIL_PAGE_CONTENT_QUERY,
       },
     );
 
@@ -150,8 +153,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
           token: targetToken,
           action_id: this.createActionId(),
         },
-        query:
-          "mutation getDetailPageTarget($linkIdentificationInput: PublicLinkIdentificationInput!, $token: String!, $action_id: String) {\n  getDetailPageTarget(\n    linkIdentificationInput: $linkIdentificationInput\n    token: $token\n    action_id: $action_id\n  ) {\n    type\n    url\n    paste\n }\n}",
+        query: GET_DETAIL_PAGE_TARGET_QUERY,
       },
     );
 
