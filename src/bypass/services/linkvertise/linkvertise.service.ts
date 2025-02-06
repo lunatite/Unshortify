@@ -14,53 +14,11 @@ import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { wait } from "src/utils/wait";
 import { toUnixTimestamp } from "src/utils/toUnixTimestamp";
-
-export type AccountResponse = {
-  user_token: string;
-};
-
-export type LinkvertiseCacheData = {
-  result: string;
-  lastEditAtSeconds: number;
-};
-
-export type DetailPageContentResponse = {
-  data: {
-    getDetailPageContent: {
-      access_token: string;
-      premium_subscription_active: null;
-      link: {
-        is_premium_only_link: boolean;
-        last_edit_at: string;
-      };
-    };
-  };
-};
-
-export type CompleteDetailPageContentResponse = {
-  data: {
-    completeDetailPageContent: {
-      CUSTOM_AD_STEP: string;
-      TARGET: string;
-      additional_target_access_information: {
-        remaining_waiting_time: number;
-        can_not_access: boolean;
-        should_show_ads: boolean;
-        has_long_paywall_duration: boolean;
-      };
-    };
-  };
-};
-
-export type DetailPageTargetResponse = {
-  data: {
-    getDetailPageTarget: {
-      type: "URL" | "PASTE";
-      url: string | null;
-      paste: string | null;
-    };
-  };
-};
+import {
+  DetailPageContentResponse,
+  CompleteDetailPageContentResponse,
+  DetailPageTargetResponse,
+} from "./linkvertise.types";
 
 @Injectable()
 export class LinkvertiseService implements LinkProcessorHandler {
