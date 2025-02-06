@@ -66,17 +66,17 @@ export class LinkProcessorService {
       throw new HostNotSupported(url);
     }
 
-    const cachedResult = await this.cache.get(url.href);
+    // const cachedResult = await this.cache.get(url.href);
 
-    if (cachedResult !== null) {
-      return {
-        name: linkProcessingService.name,
-        result: cachedResult,
-      };
-    }
+    // if (cachedResult !== null) {
+    //   return {
+    //     name: linkProcessingService.name,
+    //     result: cachedResult,
+    //   };
+    // }
 
     const result = await linkProcessingService.resolve(url);
-    await this.cache.set(url.href, result, MS_IN_HOUR * 2);
+    // await this.cache.set(url.href, result, MS_IN_HOUR * 2);
 
     return {
       name: linkProcessingService.name,
