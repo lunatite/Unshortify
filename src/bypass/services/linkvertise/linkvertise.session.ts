@@ -1,5 +1,4 @@
-import { HttpClient } from "src/http-client/http-client";
-import * as https from "https";
+import { Page } from "puppeteer";
 import {
   AccountResponse,
   CompleteDetailPageContentResponse,
@@ -11,7 +10,6 @@ import {
   GET_COMPLETE_DETAIL_PAGE_CONTENT_QUERY,
   GET_DETAIL_PAGE_TARGET_QUERY,
 } from "./graphql/page.queries";
-import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
 import { LinkvertiseUtils } from "./linkvertise-utils";
 
 export class LinkvertiseSession {
@@ -23,78 +21,83 @@ export class LinkvertiseSession {
     Referer: "https://linkvertise.com/",
   };
 
+  private initialized = false;
   private userToken: string | null = null;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly page: Page) {}
 
-  private async request<T>(
-    operationName: string,
-    variables: object,
-    query: string,
+  private async fetchFromPage<T>(
+    url: string,
+    options: RequestInit,
   ): Promise<T> {
-    if (!this.userToken || !this.headers["Cookie"]) {
+    return this.page
+      .evaluate(
+        async (url, options) => {
+          const headers = {
+            ...options.headers,
+          };
+
+          if (options?.method === "POST") {
+            headers["Content-Type"] = "application/json";
+          }
+
+          const response = await fetch(url, {
+            ...options,
+            headers,
+          });
+          return response.json();
+        },
+        url,
+        options,
+      )
+      .catch(() => this.page.close());
+  }
+
+  private async acquireSession(): Promise<void> {
+    if (this.initialized) {
+      throw new Error("Session already initialized.");
+    }
+
+    const url = this.userToken
+      ? `https://publisher.linkvertise.com/api/v1/account?X-Linkvertise-UT=${this.userToken}`
+      : "https://publisher.linkvertise.com/api/v1/account";
+
+    const data: AccountResponse = await this.fetchFromPage(url, {
+      headers: this.headers,
+    });
+    this.userToken = data.user_token;
+  }
+
+  async getDetailPageContent(userId: string | number, name: string) {
+    if (!this.initialized) {
       throw new Error("Session not initialized. Call initialize() first.");
     }
 
-    const response = await this.httpClient.post<T>(
-      LinkvertiseUtils.getGraphqlUrl(this.userToken),
-      { operationName, query, variables },
-      {
-        headers: this.headers,
-        httpsAgent: new https.Agent({
-          ciphers: "TLS_AES_128_GCM_SHA256",
-        }),
-      },
-    );
-
-    return response.data;
-  }
-
-  private async acquireSession(doNotAddCookie: boolean): Promise<void> {
-    let url = "https://publisher.linkvertise.com/api/v1/account";
-    if (this.userToken) {
-      url += `?X-Linkvertise-UT=${this.userToken}`;
-    }
-
-    const response = await this.httpClient.get<AccountResponse>(url, {
-      headers: this.headers,
-      httpsAgent: new https.Agent({
-        ciphers: "TLS_AES_128_GCM_SHA256",
-      }),
-    });
-
-    if (!this.userToken) {
-      this.userToken = response.data.user_token;
-    }
-
-    if (!doNotAddCookie) {
-      const sessionCookie = extractCookiesFromHeaders(response.headers);
-      if (!sessionCookie) {
-        throw new Error("Failed to acquire Linkvertise session");
-      }
-      this.headers["Cookie"] = sessionCookie;
-    }
-  }
-
-  async getDetailPageContent(userId: string | number, url: string) {
-    const response = await this.request<DetailPageContentResponse>(
-      "getDetailPageContent",
-      {
+    const url = LinkvertiseUtils.getGraphqlUrl(this.userToken);
+    const body = JSON.stringify({
+      operationName: "getDetailPageContent",
+      variables: {
         additional_data: {
           taboola: {
             external_referrer: "",
             user_id: "fallbackUserId",
-            url: `https://linkvertise.com/${userId}/${url}`,
+            url: `https://linkvertise.com/${userId}/${name}`,
             test_group: "old",
             session_id: null,
           },
         },
         linkIdentificationInput: {
-          userIdAndUrl: { user_id: userId, url },
+          userIdAndUrl: { user_id: userId, url: name },
         },
       },
-      GET_DETAIL_PAGE_CONTENT_QUERY,
-    );
+      query: GET_DETAIL_PAGE_CONTENT_QUERY,
+    });
+
+    const response = await this.fetchFromPage<DetailPageContentResponse>(url, {
+      method: "POST",
+      headers: this.headers,
+      body,
+    });
 
     const data = response.data.getDetailPageContent;
 
@@ -109,9 +112,14 @@ export class LinkvertiseSession {
     name: string,
     accessToken: string,
   ) {
-    const response = await this.request<CompleteDetailPageContentResponse>(
-      "completeDetailPageContent",
-      {
+    if (!this.initialized) {
+      throw new Error("Session not initialized. Call initialize() first.");
+    }
+
+    const url = LinkvertiseUtils.getGraphqlUrl(this.userToken);
+    const body = JSON.stringify({
+      operationName: "completeDetailPageContent",
+      variables: {
         linkIdentificationInput: {
           userIdAndUrl: { user_id: userId, url: name },
         },
@@ -119,8 +127,15 @@ export class LinkvertiseSession {
           access_token: accessToken,
         },
       },
-      GET_COMPLETE_DETAIL_PAGE_CONTENT_QUERY,
-    );
+      query: GET_COMPLETE_DETAIL_PAGE_CONTENT_QUERY,
+    });
+
+    const response =
+      await this.fetchFromPage<CompleteDetailPageContentResponse>(url, {
+        body,
+        headers: this.headers,
+        method: "POST",
+      });
 
     const data = response.data.completeDetailPageContent;
 
@@ -136,27 +151,48 @@ export class LinkvertiseSession {
     name: string,
     targetToken: string,
   ) {
-    const response = await this.request<DetailPageTargetResponse>(
-      "getDetailPageTarget",
-      {
+    if (!this.initialized) {
+      throw new Error("Session not initialized. Call initialize() first.");
+    }
+
+    const url = LinkvertiseUtils.getGraphqlUrl(this.userToken);
+    const body = JSON.stringify({
+      operationName: "getDetailPageTarget",
+      variables: {
         linkIdentificationInput: {
           userIdAndUrl: { user_id: userId, url: name },
         },
         token: targetToken,
         action_id: LinkvertiseUtils.createActionId(),
       },
-      GET_DETAIL_PAGE_TARGET_QUERY,
-    );
+      query: GET_DETAIL_PAGE_TARGET_QUERY,
+    });
+
+    const response = await this.fetchFromPage<DetailPageTargetResponse>(url, {
+      body,
+      headers: this.headers,
+      method: "POST",
+    });
 
     const data = response.data.getDetailPageTarget;
     return data.type === "URL" ? data.url : data.paste;
   }
 
-  async initialize(): Promise<void> {
-    // Firstly, we only need to acquire the user token.
-    await this.acquireSession(true);
+  async close() {
+    await this.page.close();
+  }
 
-    // Then this time we will acquire the session cookie with the user token.
-    await this.acquireSession(false);
+  async initialize(): Promise<void> {
+    if (this.initialized) {
+      throw new Error("Already initalized...");
+    }
+
+    // First, we need to acquire the user token.
+    await this.acquireSession();
+
+    // Next, we need to fetch the laravel_session token with the user token passed in.
+    await this.acquireSession();
+
+    this.initialized = true;
   }
 }

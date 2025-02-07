@@ -17,7 +17,14 @@ import { PuppeteerModule } from "nestjs-puppeteer";
       stores: [createKeyv("redis://localhost:6379")],
     }),
     PuppeteerModule.forRoot({
-      headless: "new",
+      headless: true,
+      args: [
+        "--proxy-server=http://proxy-us.proxy-cheap.com:5959",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-web-security",
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+      ],
     }),
     HttpClientModule.register({
       proxy:
