@@ -4,8 +4,8 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { createKeyv } from "@keyv/redis";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
-// import { ProxyProviderModule } from "./proxy-provider/proxy-provider.module";
 import { HttpClientModule } from "./http-client/http-client.module";
+import { PuppeteerModule } from "nestjs-puppeteer";
 
 @Module({
   imports: [
@@ -15,6 +15,9 @@ import { HttpClientModule } from "./http-client/http-client.module";
     CacheModule.register({
       isGlobal: true,
       stores: [createKeyv("redis://localhost:6379")],
+    }),
+    PuppeteerModule.forRoot({
+      headless: "new",
     }),
     HttpClientModule.register({
       proxy:

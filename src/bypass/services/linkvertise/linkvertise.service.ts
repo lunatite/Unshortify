@@ -43,7 +43,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
 
     if (remainingWaitingTime > this.defaultWaitTime) {
       throw new InternalServerErrorException(
-        "Cooldown in progress. Please wait before trying again",
+        `Cooldown in progress. Please wait ${remainingWaitingTime} seconds before trying again`,
       );
     }
 
