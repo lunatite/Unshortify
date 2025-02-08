@@ -1,0 +1,31 @@
+services:
+  app:
+    container_name: web-app
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env.development
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    container_name: redis
+    privileged: true
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+volumes:
+  redis-data:
