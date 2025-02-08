@@ -85,7 +85,7 @@ export class LinkProcessorService {
     const result = await linkProcessingService.resolve(url);
 
     if (this.isCacheEnabled) {
-      await this.cache.set(url.href, result, this.cacheTTL);
+      await this.cache.set(url.href, result, this.cacheTTL * 1000);
     }
 
     return { name: linkProcessingService.name, result };
