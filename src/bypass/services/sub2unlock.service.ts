@@ -1,12 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import axios from "axios";
+import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
-import { MS_IN_HOUR } from "src/common/constants";
-import { HttpClient } from "src/http-client/http-client";
 
 export type Sub2UnlockResponse = {
   status: "success" | "error";
@@ -17,9 +15,8 @@ export type Sub2UnlockResponse = {
 @Injectable()
 export class Sub2UnlockService implements LinkProcessorHandler {
   public readonly name = "Sub2Unlock";
-  protected ttl = MS_IN_HOUR;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private extractFormValues(html: string) {
     const $ = cheerio.load(html);
@@ -50,13 +47,15 @@ export class Sub2UnlockService implements LinkProcessorHandler {
       headers["X-Requested-With"] = "XMLHttpRequest";
     }
 
-    return axios.post<T>(url, params, {
+    return this.httpService.axiosRef.post<T>(url, params, {
       headers,
     });
   }
 
   private async fetchBypassedLink(url: URL) {
-    const { data: htmlContent, headers } = await axios.get(url.href);
+    const { data: htmlContent, headers } = await this.httpService.axiosRef.get(
+      url.href,
+    );
     const formValues = this.extractFormValues(htmlContent);
 
     const urlParams = new URLSearchParams({

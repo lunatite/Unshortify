@@ -2,20 +2,18 @@ import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { MS_IN_HOUR } from "src/common/constants";
-import { HttpClient } from "src/http-client/http-client";
+import { HttpService } from "@nestjs/axios";
 
 @Injectable()
 export class SubFinalService implements LinkProcessorHandler {
   public readonly name = "SubFinal";
-  protected readonly ttl = MS_IN_HOUR;
 
   private readonly fileRegex = /window\.open\("(.*)","_self"\);/;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private async fetchBypassedLink(id: string) {
-    const { data: htmlContent } = await this.httpClient.get<string>(
+    const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
       `https://subfinal.com/final.php?$=${id}&own=owner`,
     );
 

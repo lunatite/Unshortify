@@ -1,9 +1,9 @@
-import { InternalServerErrorException } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import * as WebSocket from "ws";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { MissingParameterError } from "src/common/errors";
-import { HttpClient } from "src/http-client/http-client";
 
 export type LootLabsTaskAction = {
   action_pixel_url: string;
@@ -35,12 +35,13 @@ export type LootLabsConfigKey =
   | "SHOW_UNLOCKER"
   | "TIER_ID";
 
+@Injectable()
 export class LootLabsService implements LinkProcessorHandler {
   public readonly name = "Lootlabs.gg";
 
   private readonly designId = 102;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
@@ -104,7 +105,7 @@ export class LootLabsService implements LinkProcessorHandler {
     cdnDomain: string,
     tId: string | number,
   ) {
-    const { data: rawData } = await this.httpClient.get<string>(
+    const { data: rawData } = await this.httpService.axiosRef.get<string>(
       `https://${cdnDomain}?tid=${tId}&params_only=1`,
     );
 
@@ -130,9 +131,12 @@ export class LootLabsService implements LinkProcessorHandler {
   }
 
   private async fetchTaskActions(url: URL) {
-    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
-      responseType: "text",
-    });
+    const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
+      url.href,
+      {
+        responseType: "text",
+      },
+    );
 
     const tId = this.getConfigKeyFromHtml("TID", htmlContent);
     const cdnDomain = this.getConfigKeyFromHtml("CDN_DOMAIN", htmlContent);
@@ -154,7 +158,7 @@ export class LootLabsService implements LinkProcessorHandler {
       tier_id: "1",
     };
 
-    const { data: taskActionsData } = await this.httpClient.post<
+    const { data: taskActionsData } = await this.httpService.axiosRef.post<
       Array<LootLabsTaskAction>
     >("https://nerventualken.com/tc", payload);
 
@@ -168,7 +172,7 @@ export class LootLabsService implements LinkProcessorHandler {
     const url = `https://0.onsultingco.com/st?uid=${urid}&cat=14`;
     // at least 60 seconds for this request to resolve
     // disable the proxy agent if using a proxy it might timeout
-    this.httpClient.get(url, { timeout: 1000 * 70, httpsAgent: null });
+    this.httpService.get(url, { timeout: 1000 * 70, httpsAgent: null });
   }
 
   private async connectAndDecodePublisherLink(
@@ -234,29 +238,25 @@ export class LootLabsService implements LinkProcessorHandler {
   }
 
   async resolve(url: URL) {
-    try {
-      const id = url.search.split("?")[1];
+    const id = url.search.split("?")[1];
 
-      if (url.pathname !== "/s" || !id) {
-        throw new MissingParameterError("s");
-      }
-
-      const { key, actions } = await this.fetchTaskActions(url);
-      const urid = actions[0].urid;
-
-      this.sendTelemetry(urid);
-
-      const wsUrl =
-        "wss://0.onsultingco.com/c?uid=" + urid + "&cat=14&key=" + key;
-
-      const decodedPublisherLink = await this.connectAndDecodePublisherLink(
-        wsUrl,
-        this.decodePublisherLink,
-      );
-
-      return decodedPublisherLink;
-    } catch (e) {
-      console.log(e.name);
+    if (url.pathname !== "/s" || !id) {
+      throw new MissingParameterError("s");
     }
+
+    const { key, actions } = await this.fetchTaskActions(url);
+    const urid = actions[0].urid;
+
+    this.sendTelemetry(urid);
+
+    const wsUrl =
+      "wss://0.onsultingco.com/c?uid=" + urid + "&cat=14&key=" + key;
+
+    const decodedPublisherLink = await this.connectAndDecodePublisherLink(
+      wsUrl,
+      this.decodePublisherLink,
+    );
+
+    return decodedPublisherLink;
   }
 }

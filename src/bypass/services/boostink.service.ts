@@ -1,22 +1,25 @@
+import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { decodeBase64 } from "src/utils/decodeBase64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { HttpClient } from "src/http-client/http-client";
 
 @Injectable()
 export class BoostInkService implements LinkProcessorHandler {
   private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
   public readonly name = "Boost.Ink";
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private async fetchBypassedLink(url: URL) {
-    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
-      responseType: "text",
-    });
+    const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
+      url.href,
+      {
+        responseType: "text",
+      },
+    );
 
     const $ = cheerio.load(htmlContent);
 
