@@ -52,7 +52,10 @@ export class LinkProcessorService {
     this.serviceMap.set("loot-link.com", lootlabsService);
     this.serviceMap.set("loot-links.com", lootlabsService);
 
-    this.serviceMap.set("linkvertise.com", linkvertiseService);
+    if (linkvertiseService.isEnabled) {
+      this.serviceMap.set("linkvertise.com", linkvertiseService);
+    }
+
     this.serviceMap.set("rekonise.com", rekoniseService);
     this.serviceMap.set("sub2unlock.me", sub2UnlockService);
     this.serviceMap.set("subfinal.com", subFinalService);
