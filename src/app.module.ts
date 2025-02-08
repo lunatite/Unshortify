@@ -2,13 +2,18 @@ import { Module } from "@nestjs/common";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { CacheModule } from "@nestjs/cache-manager";
 import { createKeyv } from "@keyv/redis";
-import { join } from "path";
-import { BypassModule } from "./bypass/bypass.module";
 import { HttpModule } from "@nestjs/axios";
 import { HttpsProxyAgent } from "https-proxy-agent";
+import { ConfigModule } from "@nestjs/config";
+import { join } from "path";
+import { BypassModule } from "./bypass/bypass.module";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      ignoreEnvFile: true, // we will use Docker to load the env for us
+    }),
     HttpModule.register({
       global: true,
       headers: {
