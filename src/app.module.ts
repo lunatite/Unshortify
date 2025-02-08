@@ -7,12 +7,14 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import { ConfigModule } from "@nestjs/config";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
+import { validate } from "./env.validation";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       ignoreEnvFile: true, // we will use Docker to load the env for us
+      validate,
     }),
     HttpModule.register({
       global: true,
