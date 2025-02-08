@@ -36,9 +36,6 @@
     "class-validator": "^0.14.1",
     "https-proxy-agent": "^7.0.6",
     "keyv": "^5.2.3",
-    "nestjs-puppeteer": "^2.1.0",
-    "puppeteer": "^24.2.0",
-    "puppeteer-extra": "^3.3.6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "ws": "^8.18.0"
