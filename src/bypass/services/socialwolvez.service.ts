@@ -3,10 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { HttpClient } from "src/http-client/http-client";
 
 @Injectable()
 export class SocialWolvezService implements LinkProcessorHandler {
@@ -14,10 +14,12 @@ export class SocialWolvezService implements LinkProcessorHandler {
   private readonly requiredPathSegments = 4;
   private readonly targetNuxtDataIndex = 5;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private async fetchBypassLink(url: URL) {
-    const { data: htmlContent } = await this.httpClient.get<string>(url.href);
+    const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
+      url.href,
+    );
     const $ = cheerio.load(htmlContent);
 
     const nuxtData = $("script[id='__NUXT_DATA__']").html();

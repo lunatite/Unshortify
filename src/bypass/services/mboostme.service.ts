@@ -1,9 +1,9 @@
+import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { MS_IN_HOUR } from "src/common/constants";
-import { HttpClient } from "src/http-client/http-client";
 
 @Injectable()
 export class MBoostMeService implements LinkProcessorHandler {
@@ -11,12 +11,15 @@ export class MBoostMeService implements LinkProcessorHandler {
   protected ttl = MS_IN_HOUR * 2;
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private async fetchBypassedLink(url: URL) {
-    const { data: htmlContent } = await this.httpClient.get<string>(url.href, {
-      responseType: "text",
-    });
+    const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
+      url.href,
+      {
+        responseType: "text",
+      },
+    );
 
     const bypassedLinkMatch = this.targetUrlRegex.exec(htmlContent);
 

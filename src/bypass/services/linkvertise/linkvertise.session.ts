@@ -1,4 +1,4 @@
-import { HttpClient } from "src/http-client/http-client";
+import { HttpService } from "@nestjs/axios";
 import {
   AccountResponse,
   CompleteDetailPageContentResponse,
@@ -16,7 +16,7 @@ export class LinkvertiseSession {
   private accessToken: string | null = null;
   private _isInitialized = false;
 
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpService: HttpService) {}
 
   private async request<T>(
     operationName: string,
@@ -27,7 +27,7 @@ export class LinkvertiseSession {
       throw new Error("Session not initialized. Call initialize() first.");
     }
 
-    const response = await this.httpClient.post<T>(
+    const response = await this.httpService.axiosRef.post<T>(
       "https://publisher.linkvertise.com/graphql",
       { operationName, query, variables },
       LinkvertiseUtils.getRequestConfig(this.accessToken),
@@ -40,7 +40,7 @@ export class LinkvertiseSession {
     const url = "https://publisher.linkvertise.com/api/v1/account";
 
     try {
-      const { data } = await this.httpClient.get<AccountResponse>(
+      const { data } = await this.httpService.axiosRef.get<AccountResponse>(
         url,
         LinkvertiseUtils.getRequestConfig(this.accessToken),
       );
