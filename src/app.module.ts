@@ -37,9 +37,24 @@ import { validate } from "./env.validation";
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "client"),
     }),
-    CacheModule.register({
+    CacheModule.registerAsync({
+      useFactory: (configService: ConfigService) => {
+        const redisHost = configService.getOrThrow("REDIS_HOST");
+        const redisPort = configService.getOrThrow("REDIS_PORT");
+        const redisUsername = configService.getOrThrow("REDIS_USERNAME");
+        const redisPassword = configService.getOrThrow("REDIS_PASSWORD");
+
+        const redisUrl =
+          redisUsername && redisPassword
+            ? `redis://${redisUsername}:${redisPassword}@${redisHost}:${redisPort}`
+            : `redis://${redisHost}:${redisPort}`;
+
+        return {
+          stores: [createKeyv(redisUrl)],
+        };
+      },
       isGlobal: true,
-      stores: [createKeyv("redis://localhost:6379")],
+      inject: [ConfigService],
     }),
     BypassModule,
   ],
