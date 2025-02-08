@@ -50,6 +50,10 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   LINKVERTISE_ACCESS_TOKEN: string;
+
+  @IsOptional()
+  @IsString()
+  HTTP_PROXY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
