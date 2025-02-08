@@ -172,7 +172,10 @@ export class LootLabsService implements LinkProcessorHandler {
     const url = `https://0.onsultingco.com/st?uid=${urid}&cat=14`;
     // at least 60 seconds for this request to resolve
     // disable the proxy agent if using a proxy it might timeout
-    this.httpService.get(url, { timeout: 1000 * 70, httpsAgent: null });
+    this.httpService.axiosRef.get(url, {
+      timeout: 1000 * 70,
+      httpsAgent: null,
+    });
   }
 
   private async connectAndDecodePublisherLink(

@@ -17,7 +17,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
       },
       timeout: 5000,
       httpsAgent: new HttpsProxyAgent(
-        "http://pckOSz6eYw-res_sc-us_california_losangeles-sid-72188594:PC_2XevCp8y3yAR9cCl6@proxy-us.proxy-cheap.com:5959",
+        "http://pckOSz6eYw-resfix-us-nnid-0:PC_2XevCp8y3yAR9cCl6@proxy-us.proxy-cheap.com:5959",
       ),
     }),
     ServeStaticModule.forRoot({
