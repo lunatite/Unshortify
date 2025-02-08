@@ -11,8 +11,10 @@ import { SubFinalService } from "./services/subfinal.service";
 import { LinkProcessorService } from "./link-processer.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { BypassController } from "./bypass.controller";
+import { LinkvertiseModule } from "./services/linkvertise/linkvertise.module";
 
 @Module({
+  imports: [LinkvertiseModule],
   providers: [
     AdFocusService,
     BoostInkService,

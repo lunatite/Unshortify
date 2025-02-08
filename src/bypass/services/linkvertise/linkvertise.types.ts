@@ -1,5 +1,7 @@
 export type AccountResponse = {
   user_token: string;
+  success: boolean;
+  error: boolean;
 };
 
 export type DetailPageContentResponse = {
@@ -21,7 +23,7 @@ export type CompleteDetailPageContentResponse = {
       CUSTOM_AD_STEP: string;
       TARGET: string;
       additional_target_access_information: {
-        remaining_waiting_time: number;
+        remaining_waiting_time: number | null;
         can_not_access: boolean;
         should_show_ads: boolean;
         has_long_paywall_duration: boolean;
