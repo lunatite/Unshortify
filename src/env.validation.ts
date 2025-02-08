@@ -47,6 +47,10 @@ class EnvironmentVariables {
   @IsBoolean()
   CACHE_ENABLED: boolean;
 
+  @IsNumber()
+  @Min(0)
+  CACHE_TTL: number;
+
   @IsOptional()
   @IsString()
   LINKVERTISE_ACCESS_TOKEN: string;
