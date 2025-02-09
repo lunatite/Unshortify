@@ -6,9 +6,9 @@ services:
       target: development
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - ${APP_PORT}:${APP_PORT}
     env_file:
-      - .env.development
+      - .env
     environment:
       - NODE_ENV=development
     volumes:

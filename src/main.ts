@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AxiosErrorFilter());
   app.setGlobalPrefix("/api");
 
-  const port = configService.get<number>("APP_PORT") || 3000;
+  const port = configService.getOrThrow<number>("APP_PORT");
   await app.listen(port);
 }
 bootstrap();
