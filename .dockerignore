@@ -10,7 +10,7 @@ eslint.config.mjs
 # Docker related files
 .dockerignore
 Dockerfile
-docker-compose.yml
+docker-compose*.yml
 
 # IDE-specific files
 .vscode/
@@ -20,3 +20,6 @@ dist/
 
 # Test files
 test/
+
+# Env files
+.env*

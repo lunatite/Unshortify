@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { ConfigService } from "@nestjs/config";
 import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
@@ -12,15 +13,17 @@ import { Sub2UnlockService } from "./services/sub2unlock.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { SubFinalService } from "./services/subfinal.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
-import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class LinkProcessorService {
   private readonly serviceMap: Map<string, LinkProcessorHandler>;
   private readonly supportedServices: string[];
+  private readonly isCacheEnabled: boolean;
+  private readonly cacheTTL: number;
 
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    configService: ConfigService,
     adFocusService: AdFocusService,
     boostInkService: BoostInkService,
     lootlabsService: LootLabsService,
@@ -49,7 +52,10 @@ export class LinkProcessorService {
     this.serviceMap.set("loot-link.com", lootlabsService);
     this.serviceMap.set("loot-links.com", lootlabsService);
 
-    this.serviceMap.set("linkvertise.com", linkvertiseService);
+    if (linkvertiseService.isEnabled) {
+      this.serviceMap.set("linkvertise.com", linkvertiseService);
+    }
+
     this.serviceMap.set("rekonise.com", rekoniseService);
     this.serviceMap.set("sub2unlock.me", sub2UnlockService);
     this.serviceMap.set("subfinal.com", subFinalService);
@@ -57,6 +63,9 @@ export class LinkProcessorService {
     this.serviceMap.set("socialwolvez.com", socialWolvezService);
 
     this.supportedServices = Array.from(this.serviceMap.keys());
+
+    this.isCacheEnabled = configService.getOrThrow<boolean>("CACHE_ENABLED");
+    this.cacheTTL = configService.getOrThrow<number>("CACHE_TTL");
   }
 
   async process(url: URL) {
@@ -66,22 +75,20 @@ export class LinkProcessorService {
       throw new HostNotSupported(url);
     }
 
-    const cachedResult = await this.cache.get(url.href);
-
-    if (cachedResult !== null) {
-      return {
-        name: linkProcessingService.name,
-        result: cachedResult,
-      };
+    if (this.isCacheEnabled) {
+      const cachedResult = await this.cache.get(url.href);
+      if (cachedResult !== null) {
+        return { name: linkProcessingService.name, result: cachedResult };
+      }
     }
 
     const result = await linkProcessingService.resolve(url);
-    await this.cache.set(url.href, result, MS_IN_HOUR * 2);
 
-    return {
-      name: linkProcessingService.name,
-      result,
-    };
+    if (this.isCacheEnabled) {
+      await this.cache.set(url.href, result, this.cacheTTL * 1000);
+    }
+
+    return { name: linkProcessingService.name, result };
   }
 
   async getSupportedServices() {

@@ -1,8 +1,9 @@
 {
-  "name": "nest-typescript-starter",
+  "name": "unshortify",
   "private": true,
   "version": "1.0.0",
-  "description": "Nest TypeScript starter repository",
+  "description": "An API that skips link shorteners and gives you the original URL instantly",
+  "author": "lunatite <bedgowns@gmail.com",
   "license": "MIT",
   "scripts": {
     "build": "nest build",
@@ -27,6 +28,7 @@
     "@nestjs/axios": "^4.0.0",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/serve-static": "^5.0.1",

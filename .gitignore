@@ -398,5 +398,6 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
-
-proxies.txt
+certs
+logs
+html

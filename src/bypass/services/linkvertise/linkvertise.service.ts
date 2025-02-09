@@ -7,9 +7,14 @@ import { wait } from "src/utils/wait";
 @Injectable()
 export class LinkvertiseService implements LinkProcessorHandler {
   public readonly name = "Linkvertise";
+  public readonly isEnabled: boolean = true;
   private defaultWaitTime = 10;
 
-  constructor(private readonly session: LinkvertiseSession) {}
+  constructor(private readonly session: LinkvertiseSession) {
+    if (!session) {
+      this.isEnabled = false;
+    }
+  }
 
   async resolve(url: URL) {
     const [_, userId, name] = url.pathname.split("/");
