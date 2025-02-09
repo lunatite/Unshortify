@@ -1,20 +1,11 @@
 services:
-  app:
-    container_name: web-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - 3000:3000
-    environment:
-      - NODE_ENV=production
   redis:
     image: redis:latest
     restart: unless-stopped
     container_name: redis
     privileged: true
-    ports:
-      - 6379:6379
+    expose:
+      - 6379
     volumes:
       - redis-data:/data
     command: ["redis-server", "--appendonly", "yes"]
@@ -24,5 +15,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-volumes:
-  redis-data:

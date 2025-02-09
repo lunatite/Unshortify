@@ -41,16 +41,20 @@ import { validate } from "./env.validation";
       useFactory: (configService: ConfigService) => {
         const redisHost = configService.getOrThrow("REDIS_HOST");
         const redisPort = configService.getOrThrow("REDIS_PORT");
-        const redisUsername = configService.getOrThrow("REDIS_USERNAME");
-        const redisPassword = configService.getOrThrow("REDIS_PASSWORD");
-
-        const redisUrl =
-          redisUsername && redisPassword
-            ? `redis://${redisUsername}:${redisPassword}@${redisHost}:${redisPort}`
-            : `redis://${redisHost}:${redisPort}`;
+        const redisUsername = configService.get("REDIS_USERNAME");
+        const redisPassword = configService.get("REDIS_PASSWORD");
 
         return {
-          stores: [createKeyv(redisUrl)],
+          stores: [
+            createKeyv({
+              socket: {
+                host: redisHost,
+                port: redisPort,
+              },
+              username: redisUsername,
+              password: redisPassword,
+            }),
+          ],
         };
       },
       isGlobal: true,
