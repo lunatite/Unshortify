@@ -17,7 +17,7 @@ services:
       file: common-services.yml
       service: redis
   nginx:
-    image: nginx-latest
+    image: nginx
     restart: always
     ports:
       - "80:80"
