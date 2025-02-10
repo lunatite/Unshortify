@@ -12,6 +12,7 @@ import { LinkProcessorService } from "./link-processer.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { BypassController } from "./bypass.controller";
 import { LinkvertiseModule } from "./services/linkvertise/linkvertise.module";
+import { TinyUrlService } from "./services/tinyurl.service";
 
 @Module({
   imports: [LinkvertiseModule],
@@ -27,6 +28,7 @@ import { LinkvertiseModule } from "./services/linkvertise/linkvertise.module";
     Sub2UnlockService,
     SocialWolvezService,
     SubFinalService,
+    TinyUrlService,
   ],
   controllers: [BypassController],
   exports: [LinkProcessorService],
