@@ -12,10 +12,16 @@ export class AxiosErrorFilter implements ExceptionFilter {
     const response = host.switchToHttp().getResponse();
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
+    const isProduction = process.env.NODE_ENV === "production";
+
+    const errorResponse = {
       statusCode: status,
-      error: "Internal Server Error",
-      message: `Error processing data for URL: ${error.config.url}`,
-    });
+      error: isProduction ? "Internal Server Error" : "Axios Error",
+      message: isProduction
+        ? `An error occurred while processing your request. Please try again later.`
+        : `Error processing request to URL: ${error.config.url} with message: ${error.message}`,
+    };
+
+    response.status(status).json(errorResponse);
   }
 }
