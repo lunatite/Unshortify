@@ -16,6 +16,7 @@ services:
     depends_on:
       - redis
       - linkvertise-app
+    restart: always
   redis:
     extends:
       file: common-services.yml
