@@ -7,7 +7,7 @@ import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
-import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
+import { LinkvertiseService } from "./services/linkvertise.service";
 import { RekoniseService } from "./services/rekonise.service";
 import { Sub2UnlockService } from "./services/sub2unlock.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
@@ -54,9 +54,7 @@ export class LinkProcessorService {
     this.serviceMap.set("loot-link.com", lootlabsService);
     this.serviceMap.set("loot-links.com", lootlabsService);
 
-    if (linkvertiseService.isEnabled) {
-      this.serviceMap.set("linkvertise.com", linkvertiseService);
-    }
+    this.serviceMap.set("linkvertise.com", linkvertiseService);
 
     this.serviceMap.set("rekonise.com", rekoniseService);
     this.serviceMap.set("sub2unlock.me", sub2UnlockService);

@@ -13,9 +13,18 @@ services:
       - NODE_ENV=development
     volumes:
       - ./src:/usr/src/app/src
+    depends_on:
+      - redis
+      - linkvertise-app
+    restart: always
   redis:
     extends:
       file: common-services.yml
       service: redis
+  linkvertise-app:
+    container_name: linkvertise-app
+    expose:
+      - 8000
+    image: yenoluna/linkvertise-app:latest
 volumes:
   redis-data:
