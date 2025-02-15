@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { stripHtml } from "string-strip-html";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
@@ -44,6 +45,6 @@ export class PasterSoService implements LinkProcessorHandler {
       String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16)),
     );
 
-    return decodedString;
+    return stripHtml(decodedString).result;
   }
 }
