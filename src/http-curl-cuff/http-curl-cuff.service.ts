@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import axios from "axios";
 
 type HttpCurlCuffData = {
   url: string;
   cookies?: Record<string, string>;
   method: "get" | "post" | "delete" | "put";
-  proxies?: Record<"all" | "http" | "https", string>;
   impersonate?: string;
 };
 
@@ -18,10 +18,21 @@ type HttpCurlCuffResponse<T> = {
 
 @Injectable()
 export class HttpCurlCuffService {
+  private readonly proxy;
+
+  constructor(configService: ConfigService) {
+    this.proxy = configService.get("HTTP_PROXY");
+  }
+
   async request<T>(data: HttpCurlCuffData) {
     const response = await axios.post<HttpCurlCuffResponse<T>>(
       "http://fastapi-curl-proxy:8001",
-      data,
+      {
+        ...data,
+        proxies: {
+          all: this.proxy,
+        },
+      },
       {
         timeout: 5000,
         proxy: false,
