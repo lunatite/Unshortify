@@ -24,6 +24,37 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     return crypto.randomUUID();
   }
 
+  //   private async sendAnalytic(
+  //     type: "pageView",
+  //     unlockerId: string,
+  //     anonymousId: string,
+  //   ) {
+  //     await this.httpService.axiosRef.post<RecordAnalyticResponse>(
+  //       "https://linkunlocker.com/api/analytics",
+  //       {
+  //         anonymousId,
+  //         creatorId: null,
+  //         type,
+  //         unlockerId,
+  //         userId: null,
+  //       },
+  //     );
+  //   }
+
+  private async generateUnlockerToken(unlockerId: string) {
+    const response = await this.httpService.axiosRef.post<{ token: string }>(
+      "https://linkunlocker.com/api/generate-token",
+      { unlockerId },
+      {
+        headers: {
+          Origin: "https://linkunlocker.com",
+        },
+      },
+    );
+
+    return response.data.token;
+  }
+
   private async getTargetUrls(url: URL): Promise<TargetUrlsResponse> {
     const { data: html } = await this.httpService.axiosRef.get(url.href, {
       responseType: "text",
@@ -55,8 +86,11 @@ export class LinkUnlockerService implements LinkProcessorHandler {
   }
 
   async resolve(url: URL) {
+    const anonymousId = this.createAnonymousId();
     const targetUrls = await this.getTargetUrls(url);
-    console.log(targetUrls);
+
+    // await this.sendAnalytic("pageView", targetUrls[0]._id, anonymousId);
+    await this.generateUnlockerToken(targetUrls[0]._id);
 
     return "";
   }
