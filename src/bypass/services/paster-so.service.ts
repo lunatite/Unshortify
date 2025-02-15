@@ -1,15 +1,33 @@
 import { Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { LinkProcessorHandler } from "../link-processor.types";
+import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { LinkProcessorHandler } from "../link-processor.types";
 
 @Injectable()
 export class PasterSoService implements LinkProcessorHandler {
   public readonly name = "PasterSo";
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpCurlCuffService) {}
 
   async resolve(url: URL) {
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/{id}");
+    }
+
+    if (url.pathname.split("/").length !== 2) {
+      throw new InvalidPathException("/{id}");
+    }
+
+    const response = await this.httpService.request<string>({
+      url: url.href,
+      method: "get",
+      impersonate: "chrome",
+    });
+
+    const data = response.data;
+
+    console.log(data);
+
     return "";
   }
 }
