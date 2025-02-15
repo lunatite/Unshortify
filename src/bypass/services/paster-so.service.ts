@@ -1,12 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
+import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
 @Injectable()
 export class PasterSoService implements LinkProcessorHandler {
   public readonly name = "PasterSo";
-  private readonly _contentRegex = /{\\"content\\":\\"(.*)\\",\\"title\\"/;
+  private readonly _contentRegex = /{\\"content\\":\\"(.*?)\",\\"title\\"/;
 
   constructor(private readonly httpService: HttpCurlCuffService) {}
 
@@ -25,9 +26,24 @@ export class PasterSoService implements LinkProcessorHandler {
       impersonate: "chrome",
     });
 
-    const data = response.data;
-    const contentMatch = this._contentRegex.exec(data);
+    if (response.status_code !== 200) {
+      throw new InternalServerErrorException(
+        `Unexpected response status: ${response.status_code} from ${url.href}`,
+      );
+    }
 
-    return contentMatch[1];
+    const contentMatch = this._contentRegex.exec(response.data);
+
+    if (!contentMatch || !contentMatch[1]) {
+      throw new BypassLinkNotFoundException();
+    }
+
+    const encodedString = contentMatch[1];
+
+    const decodedString = encodedString.replace(/\\u[\dA-F]{4}/gi, (match) =>
+      String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16)),
+    );
+
+    return decodedString;
   }
 }
