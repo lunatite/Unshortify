@@ -69,7 +69,7 @@ export class LinkProcessorService {
 
     this.supportedServices = Array.from(this.serviceMap.keys());
 
-    this.isCacheEnabled = false;
+    this.isCacheEnabled = configService.get<boolean>("CACHE_ENABLED") ?? true;
     this.cacheTTL = configService.getOrThrow<number>("CACHE_TTL");
   }
 
