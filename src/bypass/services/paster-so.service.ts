@@ -6,6 +6,7 @@ import { LinkProcessorHandler } from "../link-processor.types";
 @Injectable()
 export class PasterSoService implements LinkProcessorHandler {
   public readonly name = "PasterSo";
+  private readonly _contentRegex = /{\\"content\\":\\"(.*)\\",\\"title\\"/;
 
   constructor(private readonly httpService: HttpCurlCuffService) {}
 
@@ -25,9 +26,8 @@ export class PasterSoService implements LinkProcessorHandler {
     });
 
     const data = response.data;
+    const contentMatch = this._contentRegex.exec(data);
 
-    console.log(data);
-
-    return "";
+    return contentMatch[1];
   }
 }
