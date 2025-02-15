@@ -13,6 +13,7 @@ import { SocialWolvezService } from "./services/socialwolvez.service";
 import { BypassController } from "./bypass.controller";
 import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
+import { LinkUnlockerService } from "./services/linkunlocker.service";
 
 @Module({
   providers: [
@@ -29,6 +30,7 @@ import { PasterSoService } from "./services/paster-so.service";
     SubFinalService,
     TinyUrlService,
     PasterSoService,
+    LinkUnlockerService,
   ],
   controllers: [BypassController],
   exports: [LinkProcessorService],

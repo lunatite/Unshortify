@@ -15,6 +15,7 @@ import { SubFinalService } from "./services/subfinal.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
+import { LinkUnlockerService } from "./services/linkunlocker.service";
 
 @Injectable()
 export class LinkProcessorService {
@@ -38,6 +39,7 @@ export class LinkProcessorService {
     subFinalService: SubFinalService,
     tinyUrlService: TinyUrlService,
     pasterSoService: PasterSoService,
+    linkUnlockerService: LinkUnlockerService,
   ) {
     this.serviceMap = new Map();
 
@@ -66,6 +68,9 @@ export class LinkProcessorService {
     this.serviceMap.set("tinyurl.com", tinyUrlService);
 
     this.serviceMap.set("paster.so", pasterSoService);
+
+    this.serviceMap.set("linkunlocker.com", linkUnlockerService);
+    this.serviceMap.set("unlk.link", linkUnlockerService);
 
     this.supportedServices = Array.from(this.serviceMap.keys());
 
