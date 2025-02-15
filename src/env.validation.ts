@@ -1,4 +1,4 @@
-import { plainToClass } from "class-transformer";
+import { plainToClass, Transform } from "class-transformer";
 import {
   IsEnum,
   IsNumber,
@@ -44,7 +44,9 @@ class EnvironmentVariables {
   @IsString()
   REDIS_PASSWORD: string;
 
+  @IsOptional()
   @IsBoolean()
+  @Transform(({ obj, key }) => obj[key] === "true")
   CACHE_ENABLED: boolean;
 
   @IsNumber()
