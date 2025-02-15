@@ -24,6 +24,9 @@ services:
     expose:
       - 8000
     image: yenoluna/linkvertise-app:latest
+  fastapi-curl-proxy:
+    container_name: fastapi-curl-proxy
+    image: yenoluna/fastapi-curl-proxy
   nginx:
     image: nginx
     restart: always
