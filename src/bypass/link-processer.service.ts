@@ -14,6 +14,7 @@ import { SocialWolvezService } from "./services/socialwolvez.service";
 import { SubFinalService } from "./services/subfinal.service";
 import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { TinyUrlService } from "./services/tinyurl.service";
+import { PasterSoService } from "./services/paster-so.service";
 
 @Injectable()
 export class LinkProcessorService {
@@ -36,6 +37,7 @@ export class LinkProcessorService {
     socialWolvezService: SocialWolvezService,
     subFinalService: SubFinalService,
     tinyUrlService: TinyUrlService,
+    pasterSoService: PasterSoService,
   ) {
     this.serviceMap = new Map();
 
@@ -63,9 +65,11 @@ export class LinkProcessorService {
     this.serviceMap.set("socialwolvez.com", socialWolvezService);
     this.serviceMap.set("tinyurl.com", tinyUrlService);
 
+    this.serviceMap.set("paster.so", pasterSoService);
+
     this.supportedServices = Array.from(this.serviceMap.keys());
 
-    this.isCacheEnabled = configService.getOrThrow<boolean>("CACHE_ENABLED");
+    this.isCacheEnabled = false;
     this.cacheTTL = configService.getOrThrow<number>("CACHE_TTL");
   }
 

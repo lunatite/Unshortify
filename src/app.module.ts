@@ -8,6 +8,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
+import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { validate } from "./env.validation";
       }),
       global: true,
     },
+    HttpCurlCuffModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "client"),
     }),
