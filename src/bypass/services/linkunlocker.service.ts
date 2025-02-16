@@ -92,6 +92,10 @@ export class LinkUnlockerService implements LinkProcessorHandler {
   }
 
   async resolve(url: URL) {
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/{id}");
+    }
+
     const { encryptedId, unlockerId } = await this.getPageMetadata(url);
     const unlockerToken = await this.generateUnlockerToken(unlockerId);
     const decryptedUrl = await this.decryptUrl(
