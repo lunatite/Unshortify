@@ -14,8 +14,6 @@ export class AxiosErrorFilter implements ExceptionFilter {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    console.log(error);
-
     const errorResponse = {
       statusCode: status,
       error: isProduction ? "Internal Server Error" : "Axios Error",
