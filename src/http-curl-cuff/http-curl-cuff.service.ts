@@ -7,6 +7,8 @@ type HttpCurlCuffData = {
   cookies?: Record<string, string>;
   method: "get" | "post" | "delete" | "put";
   impersonate?: string;
+  return_data?: boolean;
+  headers?: Record<string, string>;
 };
 
 type HttpCurlCuffResponse<T> = {
@@ -14,6 +16,7 @@ type HttpCurlCuffResponse<T> = {
   headers: Record<string, string>;
   data: T;
   cookies: Record<string, string>;
+  url: string;
 };
 
 @Injectable()
