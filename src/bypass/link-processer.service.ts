@@ -16,7 +16,7 @@ import { HostNotSupported } from "./exceptions/host-not-supported.exception";
 import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";
-import { CodexService } from "./services/codex.service";
+import { CodexService } from "./services/codex/codex.service";
 
 @Injectable()
 export class LinkProcessorService {
