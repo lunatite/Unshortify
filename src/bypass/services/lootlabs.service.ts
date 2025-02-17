@@ -2,7 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import * as WebSocket from "ws";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { decodeBase64 } from "src/utils/decodeBase64";
+import { toBase64 } from "src/utils/b64";
 import { MissingParameterError } from "src/common/errors";
 
 export type LootLabsTaskAction = {
@@ -46,7 +46,7 @@ export class LootLabsService implements LinkProcessorHandler {
   // Look for function in the global data called 'redirectToPublisherLink'
   private decodePublisherLink(publisherLink: string, keyLength = 5) {
     let result = "";
-    const decodedPublisherLink = decodeBase64(publisherLink);
+    const decodedPublisherLink = toBase64(publisherLink);
 
     const key = decodedPublisherLink.substring(0, keyLength);
     const encodedMessage = decodedPublisherLink.substring(keyLength);

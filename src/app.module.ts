@@ -28,7 +28,11 @@ import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
               "User-Agent":
                 "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
             },
-            httpsAgent: proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined,
+            httpsAgent: proxyUrl
+              ? new HttpsProxyAgent(
+                  "http://pckOSz6eYw-res-any-sid-36397429:PC_2XevCp8y3yAR9cCl6@proxy-us.proxy-cheap.com:5959",
+                )
+              : undefined,
           };
         },
         inject: [ConfigService],
