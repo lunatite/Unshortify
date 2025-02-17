@@ -17,6 +17,7 @@ import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";
 import { CodexService } from "./services/codex/codex.service";
+import { OuoService } from "./services/ouo.service";
 
 @Injectable()
 export class LinkProcessorService {
@@ -42,6 +43,7 @@ export class LinkProcessorService {
     pasterSoService: PasterSoService,
     linkUnlockerService: LinkUnlockerService,
     codexService: CodexService,
+    ouoIoService: OuoService,
   ) {
     this.serviceMap = new Map();
 
@@ -75,6 +77,8 @@ export class LinkProcessorService {
     this.serviceMap.set("unlk.link", linkUnlockerService);
 
     this.serviceMap.set("mobile.codex.lol", codexService);
+
+    this.serviceMap.set("ouo.io", ouoIoService);
 
     this.supportedServices = Array.from(this.serviceMap.keys());
 
