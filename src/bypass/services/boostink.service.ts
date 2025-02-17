@@ -2,7 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { decodeBase64 } from "src/utils/decodeBase64";
+import { toBase64 } from "src/utils/b64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 
@@ -31,7 +31,7 @@ export class BoostInkService implements LinkProcessorHandler {
       throw new BypassLinkNotFoundException();
     }
 
-    const bypassedLink = decodeBase64(encodedBypassedLink);
+    const bypassedLink = toBase64(encodedBypassedLink);
     return bypassedLink;
   }
 

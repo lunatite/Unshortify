@@ -14,6 +14,7 @@ import { BypassController } from "./bypass.controller";
 import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";
+import { CodexService } from "./services/codex/codex.service";
 
 @Module({
   providers: [
@@ -31,6 +32,7 @@ import { LinkUnlockerService } from "./services/linkunlocker.service";
     TinyUrlService,
     PasterSoService,
     LinkUnlockerService,
+    CodexService,
   ],
   controllers: [BypassController],
   exports: [LinkProcessorService],
