@@ -10,6 +10,7 @@ import {
   IsOptional,
   IsBoolean,
 } from "class-validator";
+import { CaptchaProvider } from "./captcha/captcha-provider.enum";
 
 enum Environment {
   Development = "development",
@@ -60,6 +61,19 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   HTTP_PROXY: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (value === "" ? undefined : value))
+  @IsEnum(CaptchaProvider)
+  CAPTCHA_PROVIDER: CaptchaProvider;
+
+  @IsOptional()
+  @IsString()
+  TURNSTILE_SECRET_KEY: string;
+
+  @IsOptional()
+  @IsString()
+  TURNSTILE_SITE_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {

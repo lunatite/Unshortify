@@ -1,17 +1,16 @@
-<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Unshortify</title>
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <h2>Unshortify</h2>
     <p>
-      Hit enter or click bypass to bypass the URL. <br />Sometimes it helps to
-      try again on failure. <br />It can take a while for the result to appear
-      after submission.
+      Hit enter or click bypass to bypass the URL.
+      <br />Sometimes it helps to try again on failure.
+      <br />It can take a while for the result to appear after submission.
     </p>
     <form id="bypass-form">
       <input
@@ -21,6 +20,7 @@
         placeholder="https://"
         required
       />
+      <div class="cf-turnstile" data-sitekey={{captchaSiteKey}}></div>
       <button type="submit">Bypass</button>
       <button type="button" id="clear-btn">Clear</button>
     </form>
@@ -34,7 +34,10 @@
         <ul id="supported-services-list"></ul>
       </div>
     </div>
-
-    <script src="script.js"></script>
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_turnstileCb"
+      defer
+    ></script>
+    <script src="/js/script.js"></script>
   </body>
 </html>
