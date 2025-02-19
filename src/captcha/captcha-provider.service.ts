@@ -6,10 +6,10 @@ import { CaptchaProvider } from "./captcha-provider.enum";
 
 @Injectable()
 export class CaptchaProviderService {
-  private readonly providerService: CaptchaService;
-  private readonly providerName: CaptchaProvider;
-  private readonly siteKey: string;
-  private readonly secretKey: string;
+  private readonly captchaService?: CaptchaService;
+  private readonly _selectedProvider?: CaptchaProvider;
+  private readonly _siteKey?: string;
+  private readonly _secretKey?: string;
 
   constructor(
     turnstileService: TurnstileService,
@@ -18,37 +18,41 @@ export class CaptchaProviderService {
     const selectedProvider =
       configService.getOrThrow<CaptchaProvider>("CAPTCHA_PROVIDER");
 
+    this._selectedProvider = selectedProvider;
+
     switch (selectedProvider) {
       case CaptchaProvider.Turnstile:
-        this.providerService = turnstileService;
-        this.siteKey = configService.getOrThrow<string>("TURNSTILE_SITE_KEY");
-        this.secretKey = configService.getOrThrow<string>(
+        this.captchaService = turnstileService;
+        this._siteKey = configService.getOrThrow<string>("TURNSTILE_SITE_KEY");
+        this._secretKey = configService.getOrThrow<string>(
           "TURNSTILE_SECRET_KEY",
         );
         break;
       default:
-        this.siteKey = configService.getOrThrow<string>("TURNSTILE_SITE_KEY");
-        this.secretKey = configService.getOrThrow<string>(
-          "TURNSTILE_SECRET_KEY",
-        );
-        this.providerService = turnstileService;
-        break;
+        this._siteKey = null;
+        this._secretKey = null;
+        this._selectedProvider = null;
+        this.captchaService = null;
     }
   }
 
   async verifyCaptcha(token: string, ip?: string) {
-    return this.providerService.verifyCaptcha(token, ip);
+    if (!this.captchaService) {
+      return true;
+    }
+
+    return this.captchaService.verifyCaptcha(token, ip);
   }
 
-  getCurrentProvider(): CaptchaProvider {
-    return this.providerName;
+  get selectedProvider() {
+    return this._selectedProvider;
   }
 
-  getSiteKey() {
-    return this.siteKey;
+  get captchaSiteKey() {
+    return this._siteKey;
   }
 
-  getSecretKey() {
-    return this.secretKey;
+  get captchaSecretKey() {
+    return this._secretKey;
   }
 }

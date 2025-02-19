@@ -6,18 +6,13 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { CaptchaProviderService } from "./captcha-provider.service";
-import { ConfigService } from "@nestjs/config";
-import { CaptchaProvider } from "./captcha-provider.enum";
 
 @Injectable()
 export class CaptchaGuard implements CanActivate {
   private isCaptchaEnabled = false;
 
-  constructor(
-    private readonly captchaFactoryService: CaptchaProviderService,
-    configService: ConfigService,
-  ) {
-    if (configService.get<CaptchaProvider>("CAPTCHA_PROVIDER")) {
+  constructor(private readonly captchaProviderService: CaptchaProviderService) {
+    if (!captchaProviderService.selectedProvider) {
       this.isCaptchaEnabled = true;
     }
   }
@@ -40,7 +35,7 @@ export class CaptchaGuard implements CanActivate {
     let result;
 
     try {
-      result = await this.captchaFactoryService.verifyCaptcha(
+      result = await this.captchaProviderService.verifyCaptcha(
         captchaToken,
         clientIp,
       );
