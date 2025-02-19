@@ -5,11 +5,11 @@ import { createKeyv } from "@keyv/redis";
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { HttpsProxyAgent } from "https-proxy-agent";
-import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
 import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
 import { CaptchaModule } from "./captcha/captcha.module";
+import { AppController } from "./app.controller";
 
 @Module({
   imports: [
@@ -37,9 +37,6 @@ import { CaptchaModule } from "./captcha/captcha.module";
       global: true,
     },
     HttpCurlCuffModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "client"),
-    }),
     CacheModule.registerAsync({
       useFactory: (configService: ConfigService) => {
         const redisHost = configService.getOrThrow("REDIS_HOST");
@@ -66,7 +63,7 @@ import { CaptchaModule } from "./captcha/captcha.module";
     CaptchaModule,
     BypassModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

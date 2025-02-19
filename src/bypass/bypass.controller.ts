@@ -10,7 +10,7 @@ import { LinkProcessorService } from "./link-processer.service";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 import { CaptchaGuard } from "src/captcha/captcha.guard";
 
-@Controller("/bypass")
+@Controller("api/bypass")
 export class BypassController {
   constructor(private readonly service: LinkProcessorService) {}
 
