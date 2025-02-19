@@ -49,6 +49,7 @@ function insertResult(type, message) {
 
 function resetForm() {
   elements.bypassForm.reset();
+  turnstile.reset();
 }
 
 function getErrorMessage(message) {
