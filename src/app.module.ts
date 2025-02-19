@@ -9,6 +9,7 @@ import { join } from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
 import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
+import { CaptchaModule } from "./captcha/captcha.module";
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
       isGlobal: true,
       inject: [ConfigService],
     }),
+    CaptchaModule,
     BypassModule,
   ],
   controllers: [],
