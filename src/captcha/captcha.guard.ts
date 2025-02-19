@@ -34,24 +34,26 @@ export class CaptchaGuard implements CanActivate {
     }
 
     if (!captchaToken) {
-      throw new BadRequestException("Captcha token is missing");
+      throw new BadRequestException(["captchaToken must be a string"]);
     }
 
+    let result;
+
     try {
-      const result = await this.captchaFactoryService.verifyCaptcha(
+      result = await this.captchaFactoryService.verifyCaptcha(
         captchaToken,
         clientIp,
       );
-
-      if (!result.success) {
-        throw new BadRequestException("Captcha verification failed");
-      }
-
-      return true;
     } catch (error) {
       throw new InternalServerErrorException(
         "Error during CAPTCHA verification",
       );
     }
+
+    if (!result.success) {
+      throw new BadRequestException("Captcha verification failed");
+    }
+
+    return true;
   }
 }

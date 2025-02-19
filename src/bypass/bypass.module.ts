@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { CaptchaModule } from "src/captcha/captcha.module";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs.service";
@@ -18,6 +19,7 @@ import { CodexService } from "./services/codex/codex.service";
 import { OuoService } from "./services/ouo.service";
 
 @Module({
+  imports: [CaptchaModule],
   providers: [
     AdFocusService,
     BoostInkService,

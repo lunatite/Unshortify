@@ -7,8 +7,8 @@ type TurnstileVerifyResponse = {
   success: boolean;
   challenge_ts: string;
   "error-codes": string[];
-  hostname: string;
-  action: string;
+  hostname?: string;
+  action?: string;
 };
 
 @Injectable()
