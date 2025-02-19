@@ -12,7 +12,7 @@ export class CaptchaGuard implements CanActivate {
   private isCaptchaEnabled = false;
 
   constructor(private readonly captchaProviderService: CaptchaProviderService) {
-    if (!captchaProviderService.selectedProvider) {
+    if (captchaProviderService.selectedProvider) {
       this.isCaptchaEnabled = true;
     }
   }
