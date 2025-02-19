@@ -70,6 +70,10 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   TURNSTILE_SECRET_KEY: string;
+
+  @IsOptional()
+  @IsString()
+  TURNSTILE_SITE_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
