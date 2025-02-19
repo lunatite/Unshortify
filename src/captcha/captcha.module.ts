@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TurnstileService } from "./services/turnstile.service";
-import { CaptchaFactoryService } from "./captcha-factory.service";
+import { CaptchaProviderService } from "./captcha-provider.service";
 
 @Module({
-  providers: [TurnstileService, CaptchaFactoryService],
-  exports: [CaptchaFactoryService],
+  providers: [TurnstileService, CaptchaProviderService],
+  exports: [CaptchaProviderService],
 })
 export class CaptchaModule {}

@@ -5,16 +5,16 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import { CaptchaFactoryService } from "./captcha-factory.service";
+import { CaptchaProviderService } from "./captcha-provider.service";
 import { ConfigService } from "@nestjs/config";
-import { CaptchaProvider } from "./captcha.provider.enum";
+import { CaptchaProvider } from "./captcha-provider.enum";
 
 @Injectable()
 export class CaptchaGuard implements CanActivate {
   private isCaptchaEnabled = false;
 
   constructor(
-    private readonly captchaFactoryService: CaptchaFactoryService,
+    private readonly captchaFactoryService: CaptchaProviderService,
     configService: ConfigService,
   ) {
     if (configService.get<CaptchaProvider>("CAPTCHA_PROVIDER")) {

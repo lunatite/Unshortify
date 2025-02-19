@@ -10,7 +10,7 @@ import {
   IsOptional,
   IsBoolean,
 } from "class-validator";
-import { CaptchaProvider } from "./captcha/captcha.provider.enum";
+import { CaptchaProvider } from "./captcha/captcha-provider.enum";
 
 enum Environment {
   Development = "development",
