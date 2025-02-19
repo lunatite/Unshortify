@@ -14,6 +14,7 @@ services:
     volumes:
       - ./src:/usr/src/app/src
       - ./views:/usr/src/app/views
+      - ./public:/usr/src/app/public
     depends_on:
       - redis
       - linkvertise-app
