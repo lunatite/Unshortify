@@ -8,8 +8,9 @@ type ParsedProxy = {
 
 type ProxyProtocol = "http" | "https" | "socks4" | "socks5";
 
-function parseProxyAddress(proxy: string): ParsedProxy {
-  const regex = /^(https?|socks5?):\/\/(?:(\w+):(\w+)@)?([\w.-]+):(\d+)$/;
+export function parseProxyAddress(proxy: string): ParsedProxy {
+  const regex =
+    /^(http|https|socks4|socks5):\/\/(?:([^:]+):([^@]+)@)?([^:]+):(\d+)$/;
   const match = proxy.match(regex);
 
   if (!match) {
@@ -18,6 +19,7 @@ function parseProxyAddress(proxy: string): ParsedProxy {
 
   const [, protocol, username, password, host, port] = match;
 
+  // Validate the protocol
   if (
     protocol !== "http" &&
     protocol !== "https" &&
@@ -31,7 +33,7 @@ function parseProxyAddress(proxy: string): ParsedProxy {
     protocol,
     host,
     port: parseInt(port, 10),
-    username,
-    password,
+    username: username || undefined,
+    password: password || undefined,
   };
 }

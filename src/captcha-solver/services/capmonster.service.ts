@@ -7,6 +7,7 @@ import {
 } from "@zennolab_com/capmonstercloud-client";
 import { CapMonsterCloudClient } from "@zennolab_com/capmonstercloud-client/dist/CapMonsterCloudClient";
 import { CaptchaSolver } from "../captcha-solver.interface";
+import { parseProxyAddress } from "src/utils/parseProxyAddress";
 
 export interface TurnstileRequestParams {
   websiteURL: string;
@@ -58,6 +59,6 @@ export class CapMonsterSolverService implements CaptchaSolver {
       throw new Error(`CAPTCHA service error : ${response.error}`);
     }
 
-    return response.solution.token;
+    return (response.solution as any).cf_clearance;
   }
 }
