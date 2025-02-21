@@ -5,7 +5,7 @@ import { join } from "path";
 import * as Handlebars from "handlebars";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { AppModule } from "./app.module";
-import { AxiosErrorFilter } from "./filters/axios-error.filter";
+import { AxiosExceptionFilter } from "./common/filters/axios-exception.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,7 +22,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new AxiosErrorFilter());
+  app.useGlobalFilters(new AxiosExceptionFilter());
 
   const port = configService.getOrThrow<number>("APP_PORT");
   await app.listen(port);
