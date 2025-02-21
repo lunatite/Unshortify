@@ -1,4 +1,9 @@
-import { ArgumentsHost, ExceptionFilter, Catch } from "@nestjs/common";
+import {
+  ArgumentsHost,
+  ExceptionFilter,
+  Catch,
+  BadRequestException,
+} from "@nestjs/common";
 import { Response } from "express";
 import { AxiosError } from "axios";
 
@@ -10,8 +15,14 @@ export class AxiosExceptionFilter implements ExceptionFilter {
 
     const isDev = process.env.NODE_ENV === "development";
 
+    if (exception.response?.status === 404) {
+      throw new BadRequestException("The requested resource cannot be found");
+    }
+
     const errorResponse: Record<string, any> = {
-      message: "Bad Gateway - External API Error",
+      message: "External API Error",
+      error: "Bad Gateway",
+      statusCode: 502,
     };
 
     if (isDev) {

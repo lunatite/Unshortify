@@ -16,19 +16,11 @@ export class TinyUrlService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    try {
-      const response = await this.httpService.axiosRef.get(url.href, {
-        maxRedirects: 3,
-      });
+    const response = await this.httpService.axiosRef.get(url.href, {
+      maxRedirects: 3,
+    });
 
-      const finalUrl = response.request.res.responseUrl;
-      return finalUrl;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.response.status === 404) {
-          throw new BadRequestException("The requested page cannot be found");
-        }
-      }
-    }
+    const finalUrl = response.request.res.responseUrl;
+    return finalUrl;
   }
 }
