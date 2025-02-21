@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { LinkProcessorHandler } from "./link-processor.types";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
-import { LootLabsService } from "./services/lootlabs.service";
+import { LootLabsService } from "./services/lootlabs/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
 import { LinkvertiseService } from "./services/linkvertise.service";

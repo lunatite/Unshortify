@@ -3,7 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractMatch } from "src/utils/extractMatch";
-import { InvalidInitialLinkError } from "../errors/initial-link-not-found.error";
+import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()

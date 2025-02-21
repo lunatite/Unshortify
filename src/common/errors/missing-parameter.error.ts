@@ -1,7 +1,6 @@
-import { BadRequestException } from "@nestjs/common";
-
-export class MissingParameterError extends BadRequestException {
+export class MissingParameterError extends Error {
   constructor(parameter: string) {
     super(`The '${parameter}' is missing or invalid in the URL`);
+    this.name = "MissingParameterError";
   }
 }
