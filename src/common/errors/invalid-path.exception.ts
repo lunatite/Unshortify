@@ -1,6 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
-
-export class InvalidPathException extends BadRequestException {
+export class InvalidPathException extends Error {
   constructor(path: string) {
     super(`The provided path '${path}' is missing or invalid`);
   }

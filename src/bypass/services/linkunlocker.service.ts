@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractMatch } from "src/utils/extractMatch";
@@ -56,7 +56,9 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     const scriptContent = scripts.eq(scripts.length - 5).html();
 
     if (!scriptContent) {
-      throw new Error("Could not extract script content");
+      throw new Error(
+        "Failed to extract script content. The expected script might have changed or is missing.",
+      );
     }
 
     return extractMatch(scriptContent, this.randomIdRegex);
@@ -70,7 +72,16 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     });
 
     const unlockerId = extractMatch(html, this.unlockerIdRegex);
+
+    if (!unlockerId) {
+      throw new Error("Unlocker id not found in response");
+    }
+
     const secureTarget = extractMatch(html, this.secureTargetRegex);
+
+    if (!secureTarget) {
+      throw new Error("Secure target not found in response");
+    }
 
     if (secureTarget.length > 60) {
       return {
@@ -80,6 +91,10 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     }
 
     const randomId = this.extractRandomIdFromScript(html);
+
+    if (!randomId) {
+      throw new Error("Random id not found in response");
+    }
 
     return {
       encryptedId: secureTarget + randomId,
