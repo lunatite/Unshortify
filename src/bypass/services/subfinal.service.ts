@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 @Injectable()
 export class SubFinalService implements LinkProcessorHandler {

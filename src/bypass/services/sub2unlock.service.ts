@@ -3,7 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
 
 export type Sub2UnlockResponse = {

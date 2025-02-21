@@ -4,7 +4,7 @@ import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { toBase64 } from "src/utils/b64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 @Injectable()
 export class BoostInkService implements LinkProcessorHandler {
@@ -26,6 +26,12 @@ export class BoostInkService implements LinkProcessorHandler {
     const encodedBypassedLink = $(`script[${this.scriptAttribName}]`).attr(
       this.scriptAttribName,
     );
+
+    if (encodedBypassedLink === undefined) {
+      throw new Error(
+        "Failed to extract encoded link. The expect script attribute might have changed or is missing.",
+      );
+    }
 
     if (!encodedBypassedLink) {
       throw new BypassLinkNotFoundException();

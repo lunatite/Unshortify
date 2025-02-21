@@ -3,7 +3,7 @@ import { stripHtml } from "string-strip-html";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 @Injectable()
 export class PasterSoService implements LinkProcessorHandler {

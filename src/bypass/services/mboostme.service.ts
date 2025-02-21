@@ -2,7 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 @Injectable()
 export class MBoostMeService implements LinkProcessorHandler {

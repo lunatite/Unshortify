@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
 import { extractMatch } from "src/utils/extractMatch";
+import { InvalidInitialLinkError } from "../errors/initial-link-not-found.error";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()
 export class AdFocusService implements LinkProcessorHandler {
@@ -12,7 +13,7 @@ export class AdFocusService implements LinkProcessorHandler {
 
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassedLink(url: URL) {
+  private async fetchShortenedLink(url: URL) {
     const response = await this.httpService.axiosRef.get<string>(url.href, {
       responseType: "text",
       headers: {
@@ -22,16 +23,16 @@ export class AdFocusService implements LinkProcessorHandler {
     });
 
     if (response.request.res?.responseUrl === "https://adfoc.us/") {
-      throw new BadRequestException("The requested resource cannot be found");
+      throw new InvalidInitialLinkError(url);
     }
 
-    const clickUrl = extractMatch(response.data, this.clickUrlRegex);
+    const shortenedLink = extractMatch(response.data, this.clickUrlRegex);
 
-    if (clickUrl === null) {
-      throw new BypassLinkNotFoundException();
+    if (shortenedLink === null) {
+      throw new ShortenedLinkNotFoundError(url);
     }
 
-    return clickUrl;
+    return shortenedLink;
   }
 
   async resolve(url: URL): Promise<string> {
@@ -39,7 +40,7 @@ export class AdFocusService implements LinkProcessorHandler {
       throw new InvalidPathException("/${id}");
     }
 
-    const bypassedLink = await this.fetchBypassedLink(url);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(url);
+    return shortenedLink;
   }
 }

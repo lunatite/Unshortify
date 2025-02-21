@@ -12,7 +12,7 @@ import { RekoniseService } from "./services/rekonise.service";
 import { Sub2UnlockService } from "./services/sub2unlock.service";
 import { SocialWolvezService } from "./services/socialwolvez.service";
 import { SubFinalService } from "./services/subfinal.service";
-import { HostNotSupported } from "./exceptions/host-not-supported.exception";
+import { HostNotSupported } from "./errors/host-not-supported.exception";
 import { TinyUrlService } from "./services/tinyurl.service";
 import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";

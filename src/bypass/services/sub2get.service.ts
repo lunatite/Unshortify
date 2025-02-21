@@ -3,7 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 
 @Injectable()
 export class Sub2GetService implements LinkProcessorHandler {

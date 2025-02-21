@@ -8,7 +8,7 @@ import { Response } from "express";
 import { AxiosError } from "axios";
 
 @Catch(AxiosError)
-export class AxiosExceptionFilter implements ExceptionFilter {
+export class AxiosErrorFilter implements ExceptionFilter {
   catch(exception: AxiosError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
