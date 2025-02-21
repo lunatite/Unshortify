@@ -3,12 +3,10 @@ import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
-import { MS_IN_HOUR } from "src/common/constants";
 
 @Injectable()
 export class MBoostMeService implements LinkProcessorHandler {
   public readonly name = "MBoost.me";
-  protected ttl = MS_IN_HOUR * 2;
   private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
 
   constructor(private readonly httpService: HttpService) {}
