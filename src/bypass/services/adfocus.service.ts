@@ -3,6 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { BypassLinkNotFoundException } from "../exceptions/bypass-link-not-found.exception";
+import { extractMatch } from "src/utils/extractMatch";
 
 @Injectable()
 export class AdFocusService implements LinkProcessorHandler {
@@ -24,14 +25,13 @@ export class AdFocusService implements LinkProcessorHandler {
       throw new BadRequestException("The requested resource cannot be found");
     }
 
-    const bypassedUrlMatch = this.clickUrlRegex.exec(response.data);
+    const clickUrl = extractMatch(response.data, this.clickUrlRegex);
 
-    if (!bypassedUrlMatch || !bypassedUrlMatch[1]) {
+    if (clickUrl === null) {
       throw new BypassLinkNotFoundException();
     }
 
-    const bypassedUrl = bypassedUrlMatch[1];
-    return bypassedUrl;
+    return clickUrl;
   }
 
   async resolve(url: URL): Promise<string> {

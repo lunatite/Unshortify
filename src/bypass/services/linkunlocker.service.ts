@@ -59,7 +59,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
       throw new Error("Could not extract script content");
     }
 
-    return extractMatch(scriptContent, this.randomIdRegex, "random id");
+    return extractMatch(scriptContent, this.randomIdRegex);
   }
 
   private async getPageMetadata(
@@ -69,12 +69,8 @@ export class LinkUnlockerService implements LinkProcessorHandler {
       responseType: "text",
     });
 
-    const unlockerId = extractMatch(html, this.unlockerIdRegex, "unlocker id");
-    const secureTarget = extractMatch(
-      html,
-      this.secureTargetRegex,
-      "secure target",
-    );
+    const unlockerId = extractMatch(html, this.unlockerIdRegex);
+    const secureTarget = extractMatch(html, this.secureTargetRegex);
 
     if (secureTarget.length > 60) {
       return {
