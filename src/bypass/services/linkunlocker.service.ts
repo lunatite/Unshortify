@@ -57,7 +57,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
 
     if (!scriptContent) {
       throw new Error(
-        "Failed to extract script content. The expected script might have changed or is missing.",
+        "Failed to extract script content. The expected script may have changed or is missing from the HTML",
       );
     }
 
@@ -74,13 +74,17 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     const unlockerId = extractMatch(html, this.unlockerIdRegex);
 
     if (!unlockerId) {
-      throw new Error("Unlocker id not found in response");
+      throw new Error(
+        "Failed to extract the unlocker ID. The unlocker ID format may have changed, or it may be missing",
+      );
     }
 
     const secureTarget = extractMatch(html, this.secureTargetRegex);
 
     if (!secureTarget) {
-      throw new Error("Secure target not found in response");
+      throw new Error(
+        "Failed to extract the secure target. The secure target format may have changed, or it may be missing",
+      );
     }
 
     if (secureTarget.length > 60) {
@@ -93,7 +97,9 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     const randomId = this.extractRandomIdFromScript(html);
 
     if (!randomId) {
-      throw new Error("Random id not found in response");
+      throw new Error(
+        "Failed to extract the random id. The random ID format may have changed, or it may be missing",
+      );
     }
 
     return {
