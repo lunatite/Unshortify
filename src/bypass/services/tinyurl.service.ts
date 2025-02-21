@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
+import { AxiosError } from "axios";
+
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 
@@ -14,11 +16,19 @@ export class TinyUrlService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    const response = await this.httpService.axiosRef.get(url.href, {
-      maxRedirects: 3,
-    });
+    try {
+      const response = await this.httpService.axiosRef.get(url.href, {
+        maxRedirects: 3,
+      });
 
-    const finalUrl = response.request.res.responseUrl;
-    return finalUrl;
+      const finalUrl = response.request.res.responseUrl;
+      return finalUrl;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response.status === 404) {
+          throw new BadRequestException("The requested page cannot be found");
+        }
+      }
+    }
   }
 }
