@@ -74,6 +74,10 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   TURNSTILE_SITE_KEY: string;
+
+  @IsOptional()
+  @IsString()
+  CAPMONSTER_CLIENT_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {

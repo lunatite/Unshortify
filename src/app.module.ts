@@ -10,6 +10,7 @@ import { validate } from "./env.validation";
 import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
 import { CaptchaModule } from "./captcha/captcha.module";
 import { AppController } from "./app.controller";
+import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { AppController } from "./app.controller";
       inject: [ConfigService],
     }),
     CaptchaModule,
+    CaptchaSolverModule,
     BypassModule,
   ],
   controllers: [AppController],
