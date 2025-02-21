@@ -33,11 +33,20 @@ export class SocialWolvezService implements LinkProcessorHandler {
       jsonNuxtData = JSON.parse(nuxtData);
     } catch (error) {
       throw new InternalServerErrorException(
-        "Failed to parse the Nuxt data. The data format may be incorrect.",
+        "Failed to parse the Nuxt data. The data format may be incorrect",
       );
     }
 
-    return jsonNuxtData[this.targetNuxtDataIndex];
+    const bypassedUrl = jsonNuxtData[this.targetNuxtDataIndex];
+
+    if (
+      (typeof bypassedUrl === "string" && bypassedUrl === "") ||
+      typeof bypassedUrl === "object"
+    ) {
+      throw new BadRequestException("The requested resource cannot be found");
+    }
+
+    return bypassedUrl;
   }
 
   async resolve(url: URL) {

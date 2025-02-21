@@ -49,7 +49,6 @@ function insertResult(type, message) {
 
 function resetForm() {
   elements.bypassForm.reset();
-  turnstile.reset();
 }
 
 function getErrorMessage(message) {
@@ -71,17 +70,11 @@ async function onFormSubmit(event) {
     return insertResult("failure", `${hostname} is not supported`);
   }
 
-  const turnstileResponse = turnstile.getResponse();
-
-  if (!turnstileResponse) {
-    return insertResult("failure", "Captcha is required");
-  }
-
   try {
     const response = await fetch("/api/bypass", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, captchaToken: turnstileResponse }),
+      body: JSON.stringify({ url, captchaToken: "" }),
     });
 
     if (!response.ok) {
