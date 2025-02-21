@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
@@ -22,8 +22,12 @@ export class Sub2GetService implements LinkProcessorHandler {
     const $ = cheerio.load(htmlContent);
     const bypassedLink = $("#updateHiddenUnlocks").attr("href");
 
-    if (!bypassedLink) {
+    if (bypassedLink === undefined) {
       throw new BypassLinkNotFoundException();
+    }
+
+    if (bypassedLink === "") {
+      throw new BadRequestException("The requested resource cannot be found");
     }
 
     return bypassedLink;
