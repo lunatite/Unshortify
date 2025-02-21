@@ -4,7 +4,7 @@ import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { toBase64 } from "src/utils/b64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()
 export class BoostInkService implements LinkProcessorHandler {
@@ -13,7 +13,7 @@ export class BoostInkService implements LinkProcessorHandler {
 
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassedLink(url: URL) {
+  private async fetchShortenedLink(url: URL) {
     const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
       url.href,
       {
@@ -23,22 +23,22 @@ export class BoostInkService implements LinkProcessorHandler {
 
     const $ = cheerio.load(htmlContent);
 
-    const encodedBypassedLink = $(`script[${this.scriptAttribName}]`).attr(
+    const encodedShortenedLink = $(`script[${this.scriptAttribName}]`).attr(
       this.scriptAttribName,
     );
 
-    if (encodedBypassedLink === undefined) {
+    if (encodedShortenedLink === undefined) {
       throw new Error(
-        "Failed to extract encoded link. The expect script attribute might have changed or is missing.",
+        "Failed to extract encoded link. The expected script attribute might have changed or is missing.",
       );
     }
 
-    if (!encodedBypassedLink) {
-      throw new BypassLinkNotFoundException();
+    if (!encodedShortenedLink) {
+      throw new ShortenedLinkNotFoundError(url);
     }
 
-    const bypassedLink = toBase64(encodedBypassedLink);
-    return bypassedLink;
+    const decodedShortenedLink = toBase64(encodedShortenedLink);
+    return decodedShortenedLink;
   }
 
   async resolve(url: URL) {
@@ -46,7 +46,7 @@ export class BoostInkService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    const bypassedLink = await this.fetchBypassedLink(url);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(url);
+    return shortenedLink;
   }
 }
