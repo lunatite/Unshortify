@@ -403,3 +403,5 @@ logs
 html
 
 .venv
+# Sentry Config File
+.sentryclirc

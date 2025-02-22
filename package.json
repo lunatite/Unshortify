@@ -6,7 +6,7 @@
   "author": "lunatite <bedgowns@gmail.com",
   "license": "MIT",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && npm run sentry:sourcemaps",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org yeno --project unshortify ./out && sentry-cli sourcemaps upload --org yeno --project unshortify ./out"
   },
   "engines": {
     "npm": ">=10.0.0",
@@ -31,6 +32,7 @@
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@sentry/cli": "^2.42.1",
     "@sentry/nestjs": "^9.1.0",
     "@sentry/profiling-node": "^9.1.0",
     "@zennolab_com/capmonstercloud-client": "^1.9.0",

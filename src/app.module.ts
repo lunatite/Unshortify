@@ -3,6 +3,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { createKeyv } from "@keyv/redis";
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { SentryModule } from "@sentry/nestjs/setup";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
@@ -18,6 +19,7 @@ import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
       ignoreEnvFile: true, // we will use Docker to load the env for us
       validate,
     }),
+    SentryModule.forRoot(),
     {
       ...HttpModule.registerAsync({
         useFactory: (configService: ConfigService) => {

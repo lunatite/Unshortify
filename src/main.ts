@@ -1,3 +1,4 @@
+import "./instrument";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -7,6 +8,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { AppModule } from "./app.module";
 import { AxiosErrorFilter } from "./common/filters/axios-error.filter";
 import { ErrorFilter } from "./common/filters/error.filter";
+import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -24,6 +26,7 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new AxiosErrorFilter());
+  app.useGlobalFilters(new AllExceptionsFilter());
   // app.useGlobalFilters(new ErrorFilter());
 
   const port = configService.getOrThrow<number>("APP_PORT");
