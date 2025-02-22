@@ -5,7 +5,7 @@ import { BoostInkService } from "./services/boostink.service";
 import { LootLabsService } from "./services/lootlabs/lootlabs.service";
 import { MBoostMeService } from "./services/mboostme.service";
 import { Sub2GetService } from "./services/sub2get.service";
-import { LinkvertiseService } from "./services/linkvertise.service";
+import { LinkvertiseService } from "./services/linkvertise/linkvertise.service";
 import { RekoniseService } from "./services/rekonise.service";
 import { Sub2UnlockService } from "./services/sub2unlock.service";
 import { SubFinalService } from "./services/subfinal.service";

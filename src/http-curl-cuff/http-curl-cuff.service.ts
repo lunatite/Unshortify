@@ -5,6 +5,7 @@ import axios from "axios";
 type HttpCurlCuffData = {
   url: string;
   cookies?: Record<string, string>;
+  data?: Record<string, any>;
   method: "get" | "post" | "delete" | "put";
   impersonate?: string;
   return_data?: boolean;

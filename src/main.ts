@@ -1,5 +1,5 @@
 import "./instrument";
-import { NestFactory } from "@nestjs/core";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { join } from "path";
@@ -25,9 +25,10 @@ async function bootstrap() {
     }),
   );
 
+  const { httpAdapter } = app.get(HttpAdapterHost);
+
   app.useGlobalFilters(new AxiosErrorFilter());
-  app.useGlobalFilters(new AllExceptionsFilter());
-  // app.useGlobalFilters(new ErrorFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
   const port = configService.getOrThrow<number>("APP_PORT");
   await app.listen(port);
