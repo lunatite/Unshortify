@@ -1,4 +1,4 @@
-export class CodexUtil {
+export class CodexUtils {
   public static getTaskReferrer(link: string) {
     if (link.includes("loot-links")) {
       return "https://loot-links.com/";

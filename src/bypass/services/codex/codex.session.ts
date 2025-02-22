@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import { decodeJwt } from "src/utils/decodeJwt";
-import { CodexUtil } from "./codex.util";
+import { CodexUtils } from "./codex.utils";
 import { CodexApi } from "./codex-api.enum";
 import {
   Stage,
@@ -12,27 +12,29 @@ import {
 
 export class CodexSession {
   private isInitialized = false;
-  private headers: Record<string, string | null> = {
+  private stages: Array<Stage> | null;
+  private androidSession: string | undefined = undefined;
+
+  private static readonly HEADERS: Record<string, string | null> = {
     "Android-Session": null,
     Host: "api.codex.lol",
     Origin: "https://mobile.codex.lol",
     Referer: "https://mobile.codex.lol/",
   };
-  private stages: Array<Stage> | null;
 
   constructor(private readonly httpService: HttpService) {}
 
   async initialize(androidSession: string): Promise<void> {
     if (this.isInitialized) {
-      throw new Error("CodexSession is already initialized");
+      throw new Error("Codex session is already initialized");
     }
     if (typeof androidSession !== "string" || !androidSession.trim()) {
       throw new Error("Invalid Android session token");
     }
 
-    this.isInitialized = true;
-    this.headers["Android-Session"] = androidSession.trim();
+    this.androidSession = androidSession.trim();
     this.stages = await this.getStages();
+    this.isInitialized = true;
   }
 
   async getStages(): Promise<Array<Stage>> {
@@ -44,7 +46,12 @@ export class CodexSession {
 
     const { data } = await this.httpService.axiosRef.get<GetStagesResponse>(
       CodexApi.GET_STAGES,
-      { headers: this.headers },
+      {
+        headers: {
+          ...CodexSession.HEADERS,
+          "Android-Session": this.androidSession,
+        },
+      },
     );
 
     return data.authenticated ? [] : data.stages;
@@ -56,7 +63,12 @@ export class CodexSession {
     const { data } = await this.httpService.axiosRef.post<InitStageResponse>(
       CodexApi.INITIATE_STAGE,
       { stageId },
-      { headers: this.headers },
+      {
+        headers: {
+          ...CodexSession.HEADERS,
+          "Android-Session": this.androidSession,
+        },
+      },
     );
 
     return data.token;
@@ -66,7 +78,7 @@ export class CodexSession {
     this.ensureInitialized();
 
     const payload = decodeJwt(initStageToken).payload as StagePayload;
-    const taskReferrer = CodexUtil.getTaskReferrer(payload.link);
+    const taskReferrer = CodexUtils.getTaskReferrer(payload.link);
 
     const { data } =
       await this.httpService.axiosRef.post<ValidStageTokenResponse>(
@@ -74,7 +86,8 @@ export class CodexSession {
         { token: initStageToken },
         {
           headers: {
-            ...this.headers,
+            ...CodexSession.HEADERS,
+            "Android-Session": this.androidSession,
             "Task-Referrer": taskReferrer,
           },
         },
@@ -89,13 +102,18 @@ export class CodexSession {
     await this.httpService.axiosRef.post(
       CodexApi.AUTHENTICATE,
       { tokens: stages },
-      { headers: this.headers },
+      {
+        headers: {
+          ...CodexSession.HEADERS,
+          "Android-Session": this.androidSession,
+        },
+      },
     );
   }
 
   private ensureInitialized(): void {
     if (!this.isInitialized) {
-      throw new Error("CodexSession is not initialized");
+      throw new Error("Codex session is not initialized");
     }
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { LinkvertiseSession } from "./linkvertise.session";
 import { SupportedHosts } from "src/bypass/decorators/supported-hosts.decorator";
 import { LinkProcessorHandler } from "src/bypass/link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { LinkvertiseSession } from "./linkvertise.session";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { wait } from "src/utils/wait";
 
@@ -32,8 +32,10 @@ export class LinkvertiseService implements LinkProcessorHandler {
       await session.getDetailPageContent(userId, name);
 
     if (isPremiumLink && !premiumSubscriptionActive) {
-      throw new Error("cannot be access premium link only");
+      throw new Error("This link is only avaliable to premium users");
     }
+
+    await wait(3000);
 
     const { hasLongPaywallDuration, remainingWaitingTime, targetToken } =
       await session.getCompleteDetailPageContent(userId, name, accessToken);
