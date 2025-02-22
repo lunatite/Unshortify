@@ -17,9 +17,10 @@ import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";
 import { CodexService } from "./services/codex/codex.service";
 import { OuoService } from "./services/ouo.service";
+import { DiscoveryModule } from "@nestjs/core";
 
 @Module({
-  imports: [CaptchaModule],
+  imports: [CaptchaModule, DiscoveryModule],
   providers: [
     AdFocusService,
     BoostInkService,

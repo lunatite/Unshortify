@@ -5,8 +5,10 @@ import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["www.sub2get.com", "sub2get.com"])
 export class Sub2GetService implements LinkProcessorHandler {
   public readonly name = "Sub2Get";
 

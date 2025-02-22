@@ -5,8 +5,10 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { toBase64 } from "src/utils/b64";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["bst.gg", "bst.wtf", "boost.ink", "booo.st"])
 export class BoostInkService implements LinkProcessorHandler {
   public readonly name = "Boost.Ink";
   private static readonly SCRIPT_ATTRIBUTE_NAME = "bufpsvdhmjybvgfncqfa";

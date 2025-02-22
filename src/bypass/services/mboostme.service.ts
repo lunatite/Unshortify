@@ -4,8 +4,10 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractMatch } from "src/utils/extractMatch";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["mboost.me"])
 export class MBoostMeService implements LinkProcessorHandler {
   public readonly name = "MBoost.me";
   private static readonly TARGET_URL_REGEX = /\\"targeturl\\":\\"(.*?)\\"/;

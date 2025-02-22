@@ -1,11 +1,13 @@
 import { HttpService } from "@nestjs/axios";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { wait } from "src/utils/wait";
 import { CodexSession } from "./codex.session";
 import { LinkProcessorHandler } from "../../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { SupportedHosts } from "src/bypass/decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["mobile.codex.lol"])
 export class CodexService implements LinkProcessorHandler {
   public readonly name = "Codex";
 

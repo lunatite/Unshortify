@@ -4,8 +4,10 @@ import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractMatch } from "src/utils/extractMatch";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["linkunlocker.com", "unlk.link"])
 export class LinkUnlockerService implements LinkProcessorHandler {
   public readonly name = "LinkUnlocker";
 

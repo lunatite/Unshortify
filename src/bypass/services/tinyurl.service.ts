@@ -2,8 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["tinyurl.com"])
 export class TinyUrlService implements LinkProcessorHandler {
   public readonly name = "TinyUrl";
 

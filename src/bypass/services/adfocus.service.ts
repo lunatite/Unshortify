@@ -5,8 +5,10 @@ import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractMatch } from "src/utils/extractMatch";
 import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["adfoc.us"])
 export class AdFocusService implements LinkProcessorHandler {
   public readonly name = "Adfocus";
   private static readonly CLICK_URL_REGEX = /var click_url\s*=\s*"([^"]+)"/;

@@ -1,10 +1,12 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["ouo.io"])
 export class OuoService implements LinkProcessorHandler {
   public readonly name = "Ouo";
 

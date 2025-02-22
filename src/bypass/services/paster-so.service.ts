@@ -6,8 +6,10 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
 import { extractMatch } from "src/utils/extractMatch";
 import { PasteNotFoundError } from "../errors/paste-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["paster.so"])
 export class PasterSoService implements LinkProcessorHandler {
   public readonly name = "PasterSo";
 

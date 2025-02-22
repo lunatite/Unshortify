@@ -2,8 +2,10 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["rekonise.com"])
 export class RekoniseService implements LinkProcessorHandler {
   public readonly name = "Rekonise";
   private static readonly UNLOCK_URL =

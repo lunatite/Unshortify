@@ -7,8 +7,10 @@ import { LinkProcessorHandler } from "../../link-processor.types";
 import { MissingParameterError } from "src/common/errors";
 import { extractMatch } from "src/utils/extractMatch";
 import { InvalidInitialLinkError } from "src/bypass/errors/invalid-initial-link.error";
+import { SupportedHosts } from "src/bypass/decorators/supported-hosts.decorator";
 
 @Injectable()
+@SupportedHosts(["lootdest.org", "loot-link.com", "loot-links.com"])
 export class LootLabsService implements LinkProcessorHandler {
   public readonly name = "Lootlabs.gg";
 

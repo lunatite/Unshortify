@@ -5,6 +5,7 @@ import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
 import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { SupportedHosts } from "../decorators/supported-hosts.decorator";
 
 export type Sub2UnlockResponse = {
   status: "success" | "error";
@@ -13,6 +14,7 @@ export type Sub2UnlockResponse = {
 };
 
 @Injectable()
+@SupportedHosts(["sub2unlock.me"])
 export class Sub2UnlockService implements LinkProcessorHandler {
   public readonly name = "Sub2Unlock";
 
