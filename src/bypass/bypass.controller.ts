@@ -5,10 +5,12 @@ import {
   Get,
   HttpCode,
   UseGuards,
+  BadRequestException,
 } from "@nestjs/common";
 import { LinkProcessorService } from "./link-processer.service";
 import { BypassLinkDto } from "./dto/bypass-link.dto";
 import { CaptchaGuard } from "src/captcha/captcha.guard";
+import { AxiosError } from "axios";
 
 @Controller("api/bypass")
 export class BypassController {
@@ -18,10 +20,18 @@ export class BypassController {
   @Post("/")
   @HttpCode(200)
   async processLink(@Body() dto: BypassLinkDto) {
-    const { url } = dto;
-    const result = await this.service.process(new URL(url));
+    try {
+      const { url } = dto;
+      const result = await this.service.process(new URL(url));
 
-    return result;
+      return result;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error;
+      }
+
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get("/supported")

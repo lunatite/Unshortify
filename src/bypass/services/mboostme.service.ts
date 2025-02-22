@@ -2,16 +2,17 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
+import { extractMatch } from "src/utils/extractMatch";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()
 export class MBoostMeService implements LinkProcessorHandler {
   public readonly name = "MBoost.me";
-  private readonly targetUrlRegex = /"targeturl"\s*:\s*"([^"]+)"/;
+  private static readonly TARGET_URL_REGEX = /\\"targeturl\\":\\"(.*?)\\"/;
 
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassedLink(url: URL) {
+  private async fetchShortenedLink(url: URL) {
     const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
       url.href,
       {
@@ -19,23 +20,28 @@ export class MBoostMeService implements LinkProcessorHandler {
       },
     );
 
-    const bypassedLinkMatch = this.targetUrlRegex.exec(htmlContent);
+    const shortenedLink = extractMatch(
+      htmlContent,
+      MBoostMeService.TARGET_URL_REGEX,
+    );
 
-    if (!bypassedLinkMatch || !bypassedLinkMatch[1]) {
-      throw new BypassLinkNotFoundException();
+    if (!shortenedLink) {
+      throw new ShortenedLinkNotFoundError(url);
     }
 
-    return bypassedLinkMatch[1];
+    return shortenedLink;
   }
 
   async resolve(url: URL): Promise<string> {
-    const id = url.pathname.split("/a/")[1];
-
-    if (!id) {
-      throw new InvalidPathException("/a/{id}");
+    if (url.pathname === "/") {
+      throw new InvalidPathException("/{id}");
     }
 
-    const bypassedLink = await this.fetchBypassedLink(url);
+    if (url.pathname.split("/").length !== 2) {
+      throw new InvalidPathException("/{id}");
+    }
+
+    const bypassedLink = await this.fetchShortenedLink(url);
     return bypassedLink;
   }
 }

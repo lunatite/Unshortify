@@ -24,7 +24,7 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new AxiosErrorFilter());
-  app.useGlobalFilters(new ErrorFilter());
+  // app.useGlobalFilters(new ErrorFilter());
 
   const port = configService.getOrThrow<number>("APP_PORT");
   await app.listen(port);

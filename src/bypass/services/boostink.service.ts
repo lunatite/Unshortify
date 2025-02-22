@@ -8,8 +8,8 @@ import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.e
 
 @Injectable()
 export class BoostInkService implements LinkProcessorHandler {
-  private readonly scriptAttribName = "bufpsvdhmjybvgfncqfa";
   public readonly name = "Boost.Ink";
+  private static readonly SCRIPT_ATTRIBUTE_NAME = "bufpsvdhmjybvgfncqfa";
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -23,13 +23,13 @@ export class BoostInkService implements LinkProcessorHandler {
 
     const $ = cheerio.load(htmlContent);
 
-    const encodedShortenedLink = $(`script[${this.scriptAttribName}]`).attr(
-      this.scriptAttribName,
-    );
+    const encodedShortenedLink = $(
+      `script[${BoostInkService.SCRIPT_ATTRIBUTE_NAME}]`,
+    ).attr(BoostInkService.SCRIPT_ATTRIBUTE_NAME);
 
     if (encodedShortenedLink === undefined) {
       throw new Error(
-        "Failed to extract encoded link. The expected script attribute might have changed or is missing.",
+        "Failed to extract encoded link. The expected script attribute may have changed or is missing",
       );
     }
 

@@ -7,57 +7,62 @@ import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()
 export class SocialWolvezService implements LinkProcessorHandler {
   public readonly name = "SocialWolvez";
-  private readonly requiredPathSegments = 4;
-  private readonly targetNuxtDataIndex = 5;
+
+  private static readonly REQUIRED_PATH_SEGMENTS = 4;
+  private static readonly TARGET_NUXT_DATA_INDEX = 5;
+
+  private static readonly NUXT_DATA_SCRIPT_TAG = "script[id='__NUXT_DATA__']";
 
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassLink(url: URL) {
+  private async fetchShortenedLink(url: URL) {
     const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
       url.href,
     );
     const $ = cheerio.load(htmlContent);
 
-    const nuxtData = $("script[id='__NUXT_DATA__']").html();
+    const rawNuxtData = $(SocialWolvezService.NUXT_DATA_SCRIPT_TAG).html();
 
-    if (!nuxtData) {
-      throw new BadRequestException("Nuxt data not found in the page");
-    }
-
-    let jsonNuxtData;
-    try {
-      jsonNuxtData = JSON.parse(nuxtData);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        "Failed to parse the Nuxt data. The data format may be incorrect",
+    if (!rawNuxtData) {
+      throw new Error(
+        "Failed to extract Nuxt data. The expected script may have changed or is missing from the HTML",
       );
     }
 
-    const bypassedUrl = jsonNuxtData[this.targetNuxtDataIndex];
-
-    if (
-      (typeof bypassedUrl === "string" && bypassedUrl === "") ||
-      typeof bypassedUrl === "object"
-    ) {
-      throw new BadRequestException("The requested resource cannot be found");
+    let nuxtData;
+    try {
+      nuxtData = JSON.parse(rawNuxtData);
+    } catch (error) {
+      throw new Error("Failed to parse the Nuxt data JSON");
     }
 
-    return bypassedUrl;
+    const shortenedLink = nuxtData[SocialWolvezService.TARGET_NUXT_DATA_INDEX];
+
+    if (
+      (typeof shortenedLink === "string" && shortenedLink === "") ||
+      typeof shortenedLink === "object"
+    ) {
+      throw new ShortenedLinkNotFoundError(url);
+    }
+
+    return shortenedLink;
   }
 
   async resolve(url: URL) {
     if (
       url.pathname === "/" ||
-      url.pathname.split("/").length < this.requiredPathSegments
+      url.pathname.split("/").length <
+        SocialWolvezService.REQUIRED_PATH_SEGMENTS
     ) {
       throw new InvalidPathException("/app/l/{id}");
     }
 
-    const bypassedLink = await this.fetchBypassLink(url);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(url);
+    return shortenedLink;
   }
 }

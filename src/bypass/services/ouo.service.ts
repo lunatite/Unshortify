@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 @Injectable()
 export class OuoService implements LinkProcessorHandler {
@@ -30,7 +31,7 @@ export class OuoService implements LinkProcessorHandler {
     });
 
     if (response.status_code !== 200) {
-      throw new InternalServerErrorException();
+      throw new ShortenedLinkNotFoundError(url);
     }
 
     return response.url;

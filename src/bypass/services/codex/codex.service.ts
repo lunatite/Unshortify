@@ -24,7 +24,7 @@ export class CodexService implements LinkProcessorHandler {
     const stages = await codexSession.getStages();
 
     if (stages.length === 0) {
-      throw new BadRequestException("You are already authenticated");
+      return "You have been authenticated";
     }
 
     const validStages: Array<{ token: string; uuid: string }> = [];

@@ -3,8 +3,8 @@ import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
 import { extractCookiesFromHeaders } from "src/utils/extractCookiesFromHeaders";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
 
 export type Sub2UnlockResponse = {
   status: "success" | "error";
@@ -16,20 +16,40 @@ export type Sub2UnlockResponse = {
 export class Sub2UnlockService implements LinkProcessorHandler {
   public readonly name = "Sub2Unlock";
 
+  private static readonly REF_SELECTOR = "input[name='ref']";
+  private static readonly FN_SELECTOR = "input[name='f_n']";
+  private static readonly CSRF_SELECTOR = "input[name='_csrfToken']";
+  private static readonly TOKEN_FIELDS_SELECTOR =
+    "input[name='_Token\\[fields\\]']";
+  private static readonly TOKEN_UNLOCKED_SELECTOR =
+    "input[name='_Token\\[unlocked\\]']";
+  private static readonly AD_FORM_DATA = "input[name='ad_form_data']";
+
+  private static readonly UNLOCK_URL = "https://sub2unlock.me/links/go";
+
   constructor(private readonly httpService: HttpService) {}
+
+  private extractInputValue($: cheerio.CheerioAPI, selector: string) {
+    const inputValue = ($(selector).val() as string) ?? "";
+    return inputValue;
+  }
 
   private extractFormValues(html: string) {
     const $ = cheerio.load(html);
 
     return {
-      ref: ($("input[name='ref']").val() as string) || "",
-      f_n: ($("input[name='f_n']").val() as string) || "",
-      csrfToken: ($("input[name='_csrfToken']").val() as string) || "",
-      tokenFields:
-        ($("input[name='_Token\\[fields\\]']").val() as string) || "",
-      tokenUnlocked:
-        ($("input[name='_Token\\[unlocked\\]']").val() as string) || "",
-      ad_form_data: ($("input[name='ad_form_data']").val() as string) || "",
+      ref: this.extractInputValue($, Sub2UnlockService.REF_SELECTOR),
+      f_n: this.extractInputValue($, Sub2UnlockService.FN_SELECTOR),
+      csrfToken: this.extractInputValue($, Sub2UnlockService.CSRF_SELECTOR),
+      tokenFields: this.extractInputValue(
+        $,
+        Sub2UnlockService.TOKEN_FIELDS_SELECTOR,
+      ),
+      tokenUnlocked: this.extractInputValue(
+        $,
+        Sub2UnlockService.TOKEN_UNLOCKED_SELECTOR,
+      ),
+      ad_form_data: this.extractInputValue($, Sub2UnlockService.AD_FORM_DATA),
     };
   }
 
@@ -52,7 +72,7 @@ export class Sub2UnlockService implements LinkProcessorHandler {
     });
   }
 
-  private async fetchBypassedLink(url: URL) {
+  private async fetchShortenedLink(url: URL) {
     const { data: htmlContent, headers } = await this.httpService.axiosRef.get(
       url.href,
     );
@@ -84,14 +104,14 @@ export class Sub2UnlockService implements LinkProcessorHandler {
     const finalCookies = `${cookies}; ${extractCookiesFromHeaders(headers2)}; ab=1`;
 
     const { data: apiData } = await this.request<Sub2UnlockResponse>(
-      "https://sub2unlock.me/links/go",
+      Sub2UnlockService.UNLOCK_URL,
       urlParams2,
       finalCookies,
       true,
     );
 
     if (apiData.status === "error") {
-      throw new BypassLinkNotFoundException();
+      throw new ShortenedLinkNotFoundError(url);
     }
 
     return apiData.url;
@@ -102,7 +122,7 @@ export class Sub2UnlockService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    const bypassedLink = await this.fetchBypassedLink(url);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(url);
+    return shortenedLink;
   }
 }

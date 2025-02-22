@@ -6,14 +6,16 @@ import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 @Injectable()
 export class RekoniseService implements LinkProcessorHandler {
   public readonly name = "Rekonise";
+  private static readonly UNLOCK_URL =
+    "https://api.rekonise.com/social-unlocks";
 
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassedLink(id: string) {
+  private async fetchShortenedLink(id: string) {
     const { data } = await this.httpService.axiosRef.get<{
       url: string;
       date: string;
-    }>(`https://api.rekonise.com/social-unlocks/${id}`);
+    }>(`${RekoniseService.UNLOCK_URL}/${id}`);
 
     return data.url;
   }
@@ -24,7 +26,7 @@ export class RekoniseService implements LinkProcessorHandler {
     }
 
     const id = url.pathname.slice(1, url.pathname.length);
-    const bypassedLink = await this.fetchBypassedLink(id);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(id);
+    return shortenedLink;
   }
 }

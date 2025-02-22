@@ -1,17 +1,20 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import * as cheerio from "cheerio";
 import { MissingParameterError } from "src/common/errors";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
+import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.error";
+import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
 
 @Injectable()
 export class Sub2GetService implements LinkProcessorHandler {
   public readonly name = "Sub2Get";
 
+  private static readonly SHORTENED_LINK_SELECTOR = "#updateHiddenUnlocks";
+
   constructor(private readonly httpService: HttpService) {}
 
-  private async fetchBypassedLink(url: URL): Promise<string> {
+  private async fetchShortenedLink(url: URL): Promise<string> {
     const { data: htmlContent } = await this.httpService.axiosRef.get<string>(
       url.href,
       {
@@ -20,17 +23,19 @@ export class Sub2GetService implements LinkProcessorHandler {
     );
 
     const $ = cheerio.load(htmlContent);
-    const bypassedLink = $("#updateHiddenUnlocks").attr("href");
+    const shortenedLink = $(Sub2GetService.SHORTENED_LINK_SELECTOR).attr(
+      "href",
+    );
 
-    if (bypassedLink === undefined) {
-      throw new BypassLinkNotFoundException();
+    if (shortenedLink === undefined) {
+      throw new ShortenedLinkNotFoundError(url);
     }
 
-    if (bypassedLink === "") {
-      throw new BadRequestException("The requested resource cannot be found");
+    if (shortenedLink === "") {
+      throw new InvalidInitialLinkError(url);
     }
 
-    return bypassedLink;
+    return shortenedLink;
   }
 
   async resolve(url: URL) {
@@ -40,7 +45,7 @@ export class Sub2GetService implements LinkProcessorHandler {
       throw new MissingParameterError("l");
     }
 
-    const bypassedLink = await this.fetchBypassedLink(url);
-    return bypassedLink;
+    const shortenedLink = await this.fetchShortenedLink(url);
+    return shortenedLink;
   }
 }

@@ -1,14 +1,18 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { stripHtml } from "string-strip-html";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { BypassLinkNotFoundException } from "../errors/bypass-link-not-found.exception";
+import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
+import { extractMatch } from "src/utils/extractMatch";
+import { PasteNotFoundError } from "../errors/paste-not-found.error";
 
 @Injectable()
 export class PasterSoService implements LinkProcessorHandler {
   public readonly name = "PasterSo";
-  private readonly _contentRegex = /{\\"content\\":\\"(.*?)\",\\"title\\"/;
+
+  private static readonly CONTENT_REGEX =
+    /{\\"content\\":\\"(.*?)\",\\"title\\"/;
 
   constructor(private readonly httpService: HttpCurlCuffService) {}
 
@@ -28,20 +32,19 @@ export class PasterSoService implements LinkProcessorHandler {
     });
 
     if (response.status_code !== 200) {
-      throw new InternalServerErrorException(
-        `Unexpected response status: ${response.status_code} from ${url.href}`,
-      );
+      throw new InvalidInitialLinkError(url);
     }
 
-    const contentMatch = this._contentRegex.exec(response.data);
+    const encodedPaste = extractMatch(
+      response.data,
+      PasterSoService.CONTENT_REGEX,
+    );
 
-    if (!contentMatch || !contentMatch[1]) {
-      throw new BypassLinkNotFoundException();
+    if (!encodedPaste) {
+      throw new PasteNotFoundError(url);
     }
 
-    const encodedString = contentMatch[1];
-
-    const decodedString = encodedString.replace(/\\u[\dA-F]{4}/gi, (match) =>
+    const decodedString = encodedPaste.replace(/\\u[\dA-F]{4}/gi, (match) =>
       String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16)),
     );
 

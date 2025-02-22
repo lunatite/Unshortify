@@ -9,7 +9,8 @@ import { ShortenedLinkNotFoundError } from "../errors/shortened-link-not-found.e
 @Injectable()
 export class AdFocusService implements LinkProcessorHandler {
   public readonly name = "Adfocus";
-  private readonly clickUrlRegex = /var click_url\s*=\s*"([^"]+)"/;
+  private static readonly CLICK_URL_REGEX = /var click_url\s*=\s*"([^"]+)"/;
+  private static readonly BASE_URL = "https://adfoc.us/";
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -22,11 +23,14 @@ export class AdFocusService implements LinkProcessorHandler {
       },
     });
 
-    if (response.request.res?.responseUrl === "https://adfoc.us/") {
+    if (response.request.res?.responseUrl === AdFocusService.BASE_URL) {
       throw new InvalidInitialLinkError(url);
     }
 
-    const shortenedLink = extractMatch(response.data, this.clickUrlRegex);
+    const shortenedLink = extractMatch(
+      response.data,
+      AdFocusService.CLICK_URL_REGEX,
+    );
 
     if (shortenedLink === null) {
       throw new ShortenedLinkNotFoundError(url);

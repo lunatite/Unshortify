@@ -8,19 +8,30 @@ import { extractMatch } from "src/utils/extractMatch";
 @Injectable()
 export class LinkUnlockerService implements LinkProcessorHandler {
   public readonly name = "LinkUnlocker";
-  private readonly unlockerIdRegex = /\\"_id\\":\\"(.*?)\\"/;
-  private readonly secureTargetRegex = /\\"_secureTarget\\":\\"(.*?)(\\|)\"/;
-  private readonly randomIdRegex = /self\.__next_f\.push\(\[\d*,\"(.*?)\\"/;
+
+  private static readonly UNLOCKER_ID_REGEX = /\\"_id\\":\\"(.*?)\\"/;
+  private static readonly SECURE_TARGET_REGEX =
+    /\\"_secureTarget\\":\\"(.*?)(\\|)\"/;
+  private static readonly RANDOM_ID_REGEX =
+    /self\.__next_f\.push\(\[\d*,\"(.*?)\\"/;
+
+  private static readonly GENERATE_TOKEN_URL =
+    "https://linkunlocker.com/api/generate-token";
+  private static readonly DECRYPT_URL =
+    "https://linkunlocker.com/api/decrypt-url";
+  private static readonly ORIGIN_URL = "https://linkunlocker.com";
+
+  private static readonly ENCRYPTED_ID_REQUIRED_LENGTH_CHECK = 60;
 
   constructor(private readonly httpService: HttpService) {}
 
   private async generateUnlockerToken(unlockerId: string) {
     const response = await this.httpService.axiosRef.post<{ token: string }>(
-      "https://linkunlocker.com/api/generate-token",
+      LinkUnlockerService.GENERATE_TOKEN_URL,
       { unlockerId },
       {
         headers: {
-          Origin: "https://linkunlocker.com",
+          Origin: LinkUnlockerService.ORIGIN_URL,
         },
       },
     );
@@ -34,7 +45,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
     unlockerId: string,
   ) {
     const response = await this.httpService.axiosRef.post<{ url: string }>(
-      "https://linkunlocker.com/api/decrypt-url",
+      LinkUnlockerService.DECRYPT_URL,
       {
         encryptedUrl,
         requestToken: unlockerToken,
@@ -42,7 +53,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
       },
       {
         headers: {
-          Origin: "https://linkunlocker.com",
+          Origin: LinkUnlockerService.ORIGIN_URL,
         },
       },
     );
@@ -61,7 +72,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
       );
     }
 
-    return extractMatch(scriptContent, this.randomIdRegex);
+    return extractMatch(scriptContent, LinkUnlockerService.RANDOM_ID_REGEX);
   }
 
   private async getPageMetadata(
@@ -71,23 +82,33 @@ export class LinkUnlockerService implements LinkProcessorHandler {
       responseType: "text",
     });
 
-    const unlockerId = extractMatch(html, this.unlockerIdRegex);
+    const unlockerId = extractMatch(
+      html,
+      LinkUnlockerService.UNLOCKER_ID_REGEX,
+    );
 
     if (!unlockerId) {
       throw new Error(
-        "Failed to extract the unlocker ID. The unlocker ID format may have changed, or it may be missing",
+        "Failed to extract the unlocker ID. The unlocker ID format may have changed,or is missing",
       );
     }
 
-    const secureTarget = extractMatch(html, this.secureTargetRegex);
+    const secureTarget = extractMatch(
+      html,
+      LinkUnlockerService.SECURE_TARGET_REGEX,
+    );
 
     if (!secureTarget) {
       throw new Error(
-        "Failed to extract the secure target. The secure target format may have changed, or it may be missing",
+        "Failed to extract the secure target. The secure target format may have changed or is missing",
       );
     }
 
-    if (secureTarget.length > 60) {
+    // An arbitary number length check. If it's really long then we need the encrypted Id.
+    if (
+      secureTarget.length >
+      LinkUnlockerService.ENCRYPTED_ID_REQUIRED_LENGTH_CHECK
+    ) {
       return {
         encryptedId: secureTarget,
         unlockerId,
@@ -98,7 +119,7 @@ export class LinkUnlockerService implements LinkProcessorHandler {
 
     if (!randomId) {
       throw new Error(
-        "Failed to extract the random id. The random ID format may have changed, or it may be missing",
+        "Failed to extract the random id. The random ID format may have changed or is missing",
       );
     }
 
