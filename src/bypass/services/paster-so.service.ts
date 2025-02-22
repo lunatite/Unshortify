@@ -3,7 +3,6 @@ import { stripHtml } from "string-strip-html";
 import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
-import { InvalidInitialLinkError } from "../errors/invalid-initial-link.error";
 import { extractMatch } from "src/utils/extractMatch";
 import { PasteNotFoundError } from "../errors/paste-not-found.error";
 import { SupportedHosts } from "../decorators/supported-hosts.decorator";
@@ -32,10 +31,6 @@ export class PasterSoService implements LinkProcessorHandler {
       method: "get",
       impersonate: "chrome",
     });
-
-    if (response.status_code !== 200) {
-      throw new InvalidInitialLinkError(url);
-    }
 
     const encodedPaste = extractMatch(
       response.data,

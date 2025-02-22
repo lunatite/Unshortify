@@ -32,10 +32,6 @@ export class OuoService implements LinkProcessorHandler {
       return_data: false,
     });
 
-    if (response.status_code !== 200) {
-      throw new ShortenedLinkNotFoundError(url);
-    }
-
     return response.url;
   }
 }
