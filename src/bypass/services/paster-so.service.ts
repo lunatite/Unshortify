@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { stripHtml } from "string-strip-html";
-import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
+import { FastApiCurlProxyService } from "src/fast-api-curl-proxy/fastapi-curl-proxy.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { extractMatch } from "src/utils/extractMatch";
@@ -15,7 +15,7 @@ export class PasterSoService implements LinkProcessorHandler {
   private static readonly CONTENT_REGEX =
     /{\\"content\\":\\"(.*?)\",\\"title\\"/;
 
-  constructor(private readonly httpService: HttpCurlCuffService) {}
+  constructor(private readonly httpProxyService: FastApiCurlProxyService) {}
 
   async resolve(url: URL) {
     if (url.pathname === "/") {
@@ -26,9 +26,8 @@ export class PasterSoService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    const response = await this.httpService.request<string>({
+    const response = await this.httpProxyService.get<string>({
       url: url.href,
-      method: "get",
       impersonate: "chrome",
     });
 

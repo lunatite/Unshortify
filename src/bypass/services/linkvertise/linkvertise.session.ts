@@ -1,4 +1,4 @@
-import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
+import { FastApiCurlProxyService } from "src/fast-api-curl-proxy/fastapi-curl-proxy.service";
 import {
   AccountResponse,
   CompleteDetailPageContentResponse,
@@ -33,17 +33,16 @@ export class LinkvertiseSession {
 
   private static readonly IMPERSONATE_BROWSER_NAME = "safari";
 
-  constructor(private readonly httpService: HttpCurlCuffService) {}
+  constructor(private readonly httpProxyService: FastApiCurlProxyService) {}
 
   private async graphql<T>(
     operationName: string,
     variables: Record<string, unknown>,
     query: string,
   ) {
-    const response = await this.httpService.request<T>({
+    const response = await this.httpProxyService.post<T>({
       url:
         LinkvertiseSession.GRAPHQL_URL + `?X-Linkvertise-UT=${this.userToken}`,
-      method: "post",
       impersonate: LinkvertiseSession.IMPERSONATE_BROWSER_NAME,
       data: {
         operationName,
@@ -60,9 +59,8 @@ export class LinkvertiseSession {
       return this.userToken;
     }
 
-    const response = await this.httpService.request<AccountResponse>({
+    const response = await this.httpProxyService.get<AccountResponse>({
       url: LinkvertiseSession.ACCOUNT_URL,
-      method: "get",
       impersonate: LinkvertiseSession.IMPERSONATE_BROWSER_NAME,
       headers: {
         ...LinkvertiseSession.HEADERS,

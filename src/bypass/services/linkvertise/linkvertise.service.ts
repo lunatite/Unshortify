@@ -3,7 +3,7 @@ import { LinkvertiseSession } from "./linkvertise.session";
 import { SupportedHosts } from "src/bypass/decorators/supported-hosts.decorator";
 import { LinkProcessorHandler } from "src/bypass/link-processor.types";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
-import { HttpCurlCuffService } from "src/http-curl-cuff/http-curl-cuff.service";
+import { FastApiCurlProxyService } from "src/fast-api-curl-proxy/fastapi-curl-proxy.service";
 import { wait } from "src/utils/wait";
 
 @Injectable()
@@ -13,7 +13,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
 
   private static readonly DEFAULT_WAIT_TIME_IN_SECS = 10;
 
-  constructor(private readonly httpService: HttpCurlCuffService) {}
+  constructor(private readonly httpProxyService: FastApiCurlProxyService) {}
 
   async resolve(url: URL) {
     const paths = url.pathname.split("/");
@@ -25,7 +25,7 @@ export class LinkvertiseService implements LinkProcessorHandler {
     const userId = paths[1];
     const name = paths[2];
 
-    const session = new LinkvertiseSession(this.httpService);
+    const session = new LinkvertiseSession(this.httpProxyService);
     await session.initialize();
 
     const { isPremiumLink, premiumSubscriptionActive, accessToken } =

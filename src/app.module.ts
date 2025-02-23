@@ -8,7 +8,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import * as path from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
-import { HttpCurlCuffModule } from "./http-curl-cuff/http-curl-cuff.module";
+import { FastApiCurlProxyModule } from "./fast-api-curl-proxy/fastapi-curl-proxy.module";
 import { CaptchaModule } from "./captcha/captcha.module";
 import { AppController } from "./app.controller";
 import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
@@ -43,7 +43,7 @@ import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
       }),
       global: true,
     },
-    HttpCurlCuffModule,
+    FastApiCurlProxyModule,
     CacheModule.registerAsync({
       useFactory: (configService: ConfigService) => {
         const redisHost = configService.getOrThrow("REDIS_HOST");
