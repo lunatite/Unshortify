@@ -9,32 +9,40 @@ import {
   StagePayload,
   ValidStageTokenResponse,
 } from "./codex-response.types";
+import { FastApiCurlProxyClient } from "src/fast-api-curl-proxy/fastapi-curl-proxy.client";
+import { FastApiCurlClientFactory } from "src/fast-api-curl-proxy/fast-api-curl-client.factory";
 
 export class CodexSession {
   private isInitialized = false;
-  private stages: Array<Stage> | null;
-  private androidSession: string | undefined = undefined;
+  private stages: Array<Stage>;
+  private client: FastApiCurlProxyClient;
 
   private static readonly HEADERS: Record<string, string | null> = {
-    "Android-Session": null,
     Host: "api.codex.lol",
     Origin: "https://mobile.codex.lol",
     Referer: "https://mobile.codex.lol/",
   };
 
-  constructor(private readonly httpService: HttpService) {}
-
-  async initialize(androidSession: string): Promise<void> {
-    if (this.isInitialized) {
-      throw new Error("Codex session is already initialized");
-    }
-    if (typeof androidSession !== "string" || !androidSession.trim()) {
+  constructor(factory: FastApiCurlClientFactory, session: string) {
+    if (typeof session !== "string") {
       throw new Error("Invalid Android session token");
     }
 
-    this.androidSession = androidSession.trim();
-    this.stages = await this.getStages();
+    this.client = factory.createClient({
+      headers: {
+        ...CodexSession.HEADERS,
+        "Android-Session": session.trim(),
+      },
+    });
+  }
+
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      throw new Error("Codex session is already initialized");
+    }
+
     this.isInitialized = true;
+    await this.getStages();
   }
 
   async getStages(): Promise<Array<Stage>> {
@@ -44,32 +52,21 @@ export class CodexSession {
       return this.stages;
     }
 
-    const { data } = await this.httpService.axiosRef.get<GetStagesResponse>(
-      CodexApi.GET_STAGES,
-      {
-        headers: {
-          ...CodexSession.HEADERS,
-          "Android-Session": this.androidSession,
-        },
-      },
-    );
+    const { data } = await this.client.get<GetStagesResponse>({
+      url: CodexApi.GET_STAGES,
+    });
 
-    return data.authenticated ? [] : data.stages;
+    this.stages = data.authenticated ? [] : data.stages;
+    return this.stages;
   }
 
   async initiateStage(stageId: string): Promise<string> {
     this.ensureInitialized();
 
-    const { data } = await this.httpService.axiosRef.post<InitStageResponse>(
-      CodexApi.INITIATE_STAGE,
-      { stageId },
-      {
-        headers: {
-          ...CodexSession.HEADERS,
-          "Android-Session": this.androidSession,
-        },
-      },
-    );
+    const { data } = await this.client.post<InitStageResponse>({
+      url: CodexApi.INITIATE_STAGE,
+      data: { stageId },
+    });
 
     return data.token;
   }
@@ -80,18 +77,13 @@ export class CodexSession {
     const payload = decodeJwt(initStageToken).payload as StagePayload;
     const taskReferrer = CodexUtils.getTaskReferrer(payload.link);
 
-    const { data } =
-      await this.httpService.axiosRef.post<ValidStageTokenResponse>(
-        CodexApi.VALIDATE_STAGE,
-        { token: initStageToken },
-        {
-          headers: {
-            ...CodexSession.HEADERS,
-            "Android-Session": this.androidSession,
-            "Task-Referrer": taskReferrer,
-          },
-        },
-      );
+    const { data } = await this.client.post<ValidStageTokenResponse>({
+      url: CodexApi.VALIDATE_STAGE,
+      data: { token: initStageToken },
+      headers: {
+        "Task-Referrer": taskReferrer,
+      },
+    });
 
     return data.token;
   }
@@ -99,16 +91,10 @@ export class CodexSession {
   async authenticate(stages: { uuid: string; token: string }[]): Promise<void> {
     this.ensureInitialized();
 
-    await this.httpService.axiosRef.post(
-      CodexApi.AUTHENTICATE,
-      { tokens: stages },
-      {
-        headers: {
-          ...CodexSession.HEADERS,
-          "Android-Session": this.androidSession,
-        },
-      },
-    );
+    await this.client.post({
+      url: CodexApi.AUTHENTICATE,
+      data: { tokens: stages },
+    });
   }
 
   private ensureInitialized(): void {

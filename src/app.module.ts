@@ -8,7 +8,6 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import * as path from "path";
 import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
-import { FastApiCurlProxyModule } from "./fast-api-curl-proxy/fastapi-curl-proxy.module";
 import { CaptchaModule } from "./captcha/captcha.module";
 import { AppController } from "./app.controller";
 import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
@@ -23,6 +22,7 @@ import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
     }),
     ProxyLoaderModule.register({
       filePath: path.join(__dirname, "../proxies.txt"),
+      global: true,
     }),
     SentryModule.forRoot(),
     {
@@ -43,7 +43,6 @@ import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
       }),
       global: true,
     },
-    FastApiCurlProxyModule,
     CacheModule.registerAsync({
       useFactory: (configService: ConfigService) => {
         const redisHost = configService.getOrThrow("REDIS_HOST");

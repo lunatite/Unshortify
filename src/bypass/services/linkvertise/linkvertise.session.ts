@@ -1,4 +1,4 @@
-import { FastApiCurlProxyService } from "src/fast-api-curl-proxy/fastapi-curl-proxy.service";
+import { FastApiCurlProxyClient } from "src/fast-api-curl-proxy/fastapi-curl-proxy.client";
 import {
   AccountResponse,
   CompleteDetailPageContentResponse,
@@ -11,11 +11,13 @@ import {
   GET_DETAIL_PAGE_TARGET_QUERY,
 } from "./graphql/queries";
 import { LinkvertiseUtils } from "./linkvertise.utils";
+import { FastApiCurlClientFactory } from "src/fast-api-curl-proxy/fast-api-curl-client.factory";
 
 export class LinkvertiseSession {
   private isInitialized = false;
   private authBearerToken: string | undefined = undefined;
   private userToken: string | undefined = undefined;
+  private client: FastApiCurlProxyClient;
 
   private static readonly HEADERS = {
     Accept: "application/json",
@@ -33,17 +35,21 @@ export class LinkvertiseSession {
 
   private static readonly IMPERSONATE_BROWSER_NAME = "safari";
 
-  constructor(private readonly httpProxyService: FastApiCurlProxyService) {}
+  constructor(factory: FastApiCurlClientFactory) {
+    this.client = factory.createClient({
+      impersonate: LinkvertiseSession.IMPERSONATE_BROWSER_NAME,
+      headers: LinkvertiseSession.HEADERS,
+    });
+  }
 
   private async graphql<T>(
     operationName: string,
     variables: Record<string, unknown>,
     query: string,
   ) {
-    const response = await this.httpProxyService.post<T>({
+    const response = await this.client.post<T>({
       url:
         LinkvertiseSession.GRAPHQL_URL + `?X-Linkvertise-UT=${this.userToken}`,
-      impersonate: LinkvertiseSession.IMPERSONATE_BROWSER_NAME,
       data: {
         operationName,
         variables,
@@ -59,11 +65,9 @@ export class LinkvertiseSession {
       return this.userToken;
     }
 
-    const response = await this.httpProxyService.get<AccountResponse>({
+    const response = await this.client.get<AccountResponse>({
       url: LinkvertiseSession.ACCOUNT_URL,
-      impersonate: LinkvertiseSession.IMPERSONATE_BROWSER_NAME,
       headers: {
-        ...LinkvertiseSession.HEADERS,
         Authorization: this.authBearerToken,
       },
     });

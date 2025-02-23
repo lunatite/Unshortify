@@ -1,6 +1,4 @@
-import { Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 export type FastApiCurlProxyRequest = {
   url: string;
@@ -21,21 +19,36 @@ export type FastApiCurlProxyResponse<T> = {
   url: string;
 };
 
-@Injectable()
-export class FastApiCurlProxyService {
-  private static readonly BASE_URL = "http://fastapi-curl-proxy:8001";
+export interface FastApiCurlProxyClientOptions
+  extends Omit<FastApiCurlProxyRequest, "method" | "url"> {}
 
-  constructor(private readonly httpService: HttpService) {}
+export class FastApiCurlProxyClient {
+  private static readonly BASE_URL = "http://fastapi-curl-proxy:8001";
+  private readonly axios: AxiosInstance;
+  private readonly options: FastApiCurlProxyClientOptions;
+
+  constructor(options: FastApiCurlProxyClientOptions) {
+    this.options = options;
+
+    this.axios = axios.create({
+      baseURL: FastApiCurlProxyClient.BASE_URL,
+      timeout: 5000,
+      proxy: false,
+    });
+  }
 
   private request<T>(
     data: FastApiCurlProxyRequest,
   ): Promise<AxiosResponse<FastApiCurlProxyResponse<T>>> {
-    return this.httpService.axiosRef.post<FastApiCurlProxyResponse<T>>(
-      FastApiCurlProxyService.BASE_URL,
-      data,
+    return this.axios.post<FastApiCurlProxyResponse<T>>(
+      FastApiCurlProxyClient.BASE_URL,
       {
-        timeout: 5000,
-        httpsAgent: undefined,
+        ...this.options,
+        ...data,
+        headers: {
+          ...this.options.headers,
+          ...data.headers,
+        },
       },
     );
   }

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { DiscoveryModule } from "@nestjs/core";
 import { CaptchaModule } from "src/captcha/captcha.module";
 import { AdFocusService } from "./services/adfocus.service";
 import { BoostInkService } from "./services/boostink.service";
@@ -17,10 +18,10 @@ import { PasterSoService } from "./services/paster-so.service";
 import { LinkUnlockerService } from "./services/linkunlocker.service";
 import { CodexService } from "./services/codex/codex.service";
 import { OuoService } from "./services/ouo.service";
-import { DiscoveryModule } from "@nestjs/core";
+import { FastApiCurlClientFactoryModule } from "src/fast-api-curl-proxy/fastapi-curl-proxy.module";
 
 @Module({
-  imports: [CaptchaModule, DiscoveryModule],
+  imports: [CaptchaModule, DiscoveryModule, FastApiCurlClientFactoryModule],
   providers: [
     AdFocusService,
     BoostInkService,

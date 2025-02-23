@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { stripHtml } from "string-strip-html";
-import { FastApiCurlProxyService } from "src/fast-api-curl-proxy/fastapi-curl-proxy.service";
 import { InvalidPathException } from "src/common/errors/invalid-path.exception";
 import { LinkProcessorHandler } from "../link-processor.types";
 import { extractMatch } from "src/utils/extractMatch";
 import { PasteNotFoundError } from "../errors/paste-not-found.error";
 import { SupportedHosts } from "../decorators/supported-hosts.decorator";
+import { FastApiCurlClientFactory } from "src/fast-api-curl-proxy/fast-api-curl-client.factory";
 
 @Injectable()
 @SupportedHosts(["paster.so"])
@@ -15,7 +15,9 @@ export class PasterSoService implements LinkProcessorHandler {
   private static readonly CONTENT_REGEX =
     /{\\"content\\":\\"(.*?)\",\\"title\\"/;
 
-  constructor(private readonly httpProxyService: FastApiCurlProxyService) {}
+  constructor(
+    private readonly fastApiCurlClientFactory: FastApiCurlClientFactory,
+  ) {}
 
   async resolve(url: URL) {
     if (url.pathname === "/") {
@@ -26,7 +28,8 @@ export class PasterSoService implements LinkProcessorHandler {
       throw new InvalidPathException("/{id}");
     }
 
-    const response = await this.httpProxyService.get<string>({
+    const client = await this.fastApiCurlClientFactory.createClient();
+    const response = await client.get<string>({
       url: url.href,
       impersonate: "chrome",
     });

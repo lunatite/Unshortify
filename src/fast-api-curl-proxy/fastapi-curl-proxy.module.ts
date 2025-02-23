@@ -1,9 +1,9 @@
 import { Global, Module } from "@nestjs/common";
-import { FastApiCurlProxyService } from "./fastapi-curl-proxy.service";
+import { FastApiCurlClientFactory } from "./fast-api-curl-client.factory";
 
 @Global()
 @Module({
-  providers: [FastApiCurlProxyService],
-  exports: [FastApiCurlProxyService],
+  providers: [FastApiCurlClientFactory],
+  exports: [FastApiCurlClientFactory],
 })
-export class FastApiCurlProxyModule {}
+export class FastApiCurlClientFactoryModule {}
