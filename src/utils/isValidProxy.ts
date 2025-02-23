@@ -1,5 +1,10 @@
-const proxyRegex = /^(https?:\/\/)?([^@:]+):([^@]+)@([a-zA-Z0-9.-]+):(\d+)$/;
+import { parseProxyAddress } from "./parseProxyAddress";
 
-export function isValidProxy(line: string): boolean {
-  return proxyRegex.test(line);
+export function isValidProxy(proxy: string): boolean {
+  try {
+    parseProxyAddress(proxy);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }

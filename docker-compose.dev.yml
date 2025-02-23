@@ -15,6 +15,7 @@ services:
       - ./src:/usr/src/app/src
       - ./views:/usr/src/app/views
       - ./public:/usr/src/app/public
+      - ./proxies.txt:/usr/src/app/proxies.txt
     depends_on:
       - redis
     restart: always

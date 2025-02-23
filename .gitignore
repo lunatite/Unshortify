@@ -405,3 +405,5 @@ html
 .venv
 # Sentry Config File
 .sentryclirc
+
+proxies.txt
