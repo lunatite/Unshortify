@@ -14,7 +14,7 @@ async function getSupportedServices() {
   }
 
   try {
-    const response = await fetch("/api/bypass/supported");
+    const response = await fetch("/api/unlock/supported");
 
     if (!response.ok) {
       throw new Error(`Failed to fetch services: ${response.statusText}`);
@@ -71,10 +71,10 @@ async function onFormSubmit(event) {
   }
 
   try {
-    const response = await fetch("/api/bypass", {
+    const response = await fetch("/api/unlock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, captchaToken: "" }),
+      body: JSON.stringify({ link: url, captchaToken: "" }),
     });
 
     if (!response.ok) {
@@ -82,7 +82,7 @@ async function onFormSubmit(event) {
       insertResult("failure", getErrorMessage(data.message));
     } else {
       const data = await response.json();
-      insertResult("success", data.result);
+      insertResult("success", data.content);
     }
   } catch (e) {
     insertResult("failure", `Error: ${e.message}`);

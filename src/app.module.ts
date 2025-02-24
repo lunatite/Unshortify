@@ -6,12 +6,12 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { SentryModule } from "@sentry/nestjs/setup";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import * as path from "path";
-import { BypassModule } from "./bypass/bypass.module";
 import { validate } from "./env.validation";
 import { CaptchaModule } from "./captcha/captcha.module";
 import { AppController } from "./app.controller";
 import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
 import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
+import { UnlockerModule } from "./unlocker/unlocker.module";
 
 @Module({
   imports: [
@@ -66,9 +66,9 @@ import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
       isGlobal: true,
       inject: [ConfigService],
     }),
+    UnlockerModule,
     CaptchaModule,
     CaptchaSolverModule,
-    BypassModule,
   ],
   controllers: [AppController],
   providers: [],
