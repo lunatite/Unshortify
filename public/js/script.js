@@ -14,7 +14,7 @@ async function getSupportedServices() {
   }
 
   try {
-    const response = await fetch("/api/bypass/supported");
+    const response = await fetch("/api/unlock/supported");
 
     if (!response.ok) {
       throw new Error(`Failed to fetch services: ${response.statusText}`);
@@ -49,7 +49,6 @@ function insertResult(type, message) {
 
 function resetForm() {
   elements.bypassForm.reset();
-  turnstile.reset();
 }
 
 function getErrorMessage(message) {
@@ -71,17 +70,11 @@ async function onFormSubmit(event) {
     return insertResult("failure", `${hostname} is not supported`);
   }
 
-  const turnstileResponse = turnstile.getResponse();
-
-  if (!turnstileResponse) {
-    return insertResult("failure", "Captcha is required");
-  }
-
   try {
-    const response = await fetch("/api/bypass", {
+    const response = await fetch("/api/unlock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, captchaToken: turnstileResponse }),
+      body: JSON.stringify({ link: url, captchaToken: "" }),
     });
 
     if (!response.ok) {
@@ -89,7 +82,7 @@ async function onFormSubmit(event) {
       insertResult("failure", getErrorMessage(data.message));
     } else {
       const data = await response.json();
-      insertResult("success", data.result);
+      insertResult("success", data.content);
     }
   } catch (e) {
     insertResult("failure", `Error: ${e.message}`);

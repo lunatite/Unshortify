@@ -15,19 +15,14 @@ services:
       - ./src:/usr/src/app/src
       - ./views:/usr/src/app/views
       - ./public:/usr/src/app/public
+      - ./proxies.txt:/usr/src/app/proxies.txt
     depends_on:
       - redis
-      - linkvertise-app
     restart: always
   redis:
     extends:
       file: common-services.yml
       service: redis
-  linkvertise-app:
-    container_name: linkvertise-app
-    expose:
-      - 8000
-    image: yenoluna/linkvertise-app:latest
   fastapi-curl-proxy:
     container_name: fastapi-curl-proxy
     image: yenoluna/fastapi-curl-proxy
