@@ -1,3 +1,20 @@
+function detectAdblock() {
+  setTimeout(() => {
+    if (!document.getElementById("rDzNlIFXYeQk")) {
+      document.getElementById("adblock-popup").style.display = "block";
+    }
+    testAd.remove();
+  }, 100);
+}
+
+// Dismiss the popup when user clicks the button
+document.getElementById("dismiss-button").addEventListener("click", () => {
+  document.getElementById("adblock-popup").style.display = "none";
+});
+
+// Run the adblock detection
+detectAdblock();
+
 const elements = {
   unlockForm: document.getElementById("unlock-form"),
   urlInput: document.getElementById("url-input"),

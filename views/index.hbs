@@ -76,7 +76,12 @@
     <meta name="twitter:image" content="/favicon/android-chrome-512x512.png" />
   </head>
   <body>
+    <div id="adblock-popup">
+      <p>We detected an ad blocker. Please disable it to support our site.</p>
+      <button id="dismiss-button">Got it!</button>
+    </div>
     <main>
+
       <section>
         <h2>Unlockify - Instantly Bypass Locked Links</h2>
         <p>
@@ -132,6 +137,8 @@
         </ul>
       </section>
     </main>
+    <script src="/js/stickyads.js" type="text/javascript"></script>
+
     <script src="/js/script.js"></script>
     <script type="application/ld+json">
       { "@context": "https://schema.org", "@type": "WebSite", "name":
