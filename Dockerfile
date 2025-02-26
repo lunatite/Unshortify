@@ -20,7 +20,8 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/package*.json ./
 RUN npm install --omit=dev
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/client ./client
-RUN chown -R appuser:appgroup /usr/src/app/dist /usr/src/app/client
+COPY --from=builder /usr/src/app/public ./public
+COPY --from=builder /usr/src/app/views ./views
+RUN chown -R appuser:appgroup /usr/src/app/dist /usr/src/app/public /usr/src/app/views
 USER appuser
 CMD ["npm" , "run" , "start:prod"]
