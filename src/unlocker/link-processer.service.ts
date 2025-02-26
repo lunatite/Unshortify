@@ -51,7 +51,7 @@ export class LinkProcessorService implements OnModuleInit {
     if (this.isCacheEnabled) {
       const cachedResult = await this.cache.get(url.href);
       if (cachedResult !== null) {
-        return { name: unlockerService.name, result: cachedResult };
+        return { name: unlockerService.name, content: cachedResult };
       }
     }
 
