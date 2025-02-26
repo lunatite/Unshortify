@@ -3,7 +3,6 @@ function detectAdblock() {
     if (!document.getElementById("rDzNlIFXYeQk")) {
       document.getElementById("adblock-popup").style.display = "block";
     }
-    testAd.remove();
   }, 100);
 }
 
