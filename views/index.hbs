@@ -2,38 +2,141 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unshortify</title>
+    <title>Unlockify - Instantly Bypass Locked Links & Skip Ads</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon/favicon-32x32.png"
+    />
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/favicon/android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/favicon/android-chrome-512x512.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png"
+    />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <meta
+      name="description"
+      content="Unlockify helps you bypass locked links, skip ad walls, and access content instantly—fast, free, and no verification required."
+    />
+    <meta
+      name="keywords"
+      content="link unlocker, bypass links, skip ad links, unlock hidden links, content unlocker, link bypass tool, skip link verification, paywall bypass, direct link access"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      property="og:title"
+      content="Unlockify - Instantly Bypass Locked Links"
+    />
+    <meta
+      property="og:description"
+      content="Unlockify lets you skip ads, bypass paywalls, and access locked links instantly—no verification required!"
+    />
+    <meta property="og:image" content="/favicon/android-chrome-512x512.png" />
+    <meta property="og:url" content="https://unlockify.link" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unlockify" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Unlockify - Instantly Bypass Locked Links"
+    />
+    <meta
+      name="twitter:description"
+      content="Skip waiting times, remove ads, and access locked links instantly with Unlockify!"
+    />
+    <meta name="twitter:image" content="/favicon/android-chrome-512x512.png" />
   </head>
   <body>
-    <h2>Unshortify</h2>
-    <p>
-      Hit enter or click bypass to bypass the URL.
-      <br />Sometimes it helps to try again on failure.
-      <br />It can take a while for the result to appear after submission.
-    </p>
-    <form id="bypass-form">
-      <input
-        type="text"
-        name="url"
-        id="url-input"
-        placeholder="https://"
-        required
-      />
-      <div class="cf-turnstile" data-sitekey={{captchaSiteKey}}></div>
-      <button type="submit">Bypass</button>
-      <button type="button" id="clear-btn">Clear</button>
-    </form>
-    <div id="results-container">
-      <div>
-        <p>Results :</p>
-        <ul id="output-list"></ul>
-      </div>
-      <div>
-        <p>Supported Services:</p>
-        <ul id="supported-services-list"></ul>
-      </div>
-    </div>
+    <main>
+      <section>
+        <h2>Unlockify - Instantly Bypass Locked Links</h2>
+        <p>
+          Hit enter or click unlock to unlock the URL.
+          <br />Sometimes it helps to try again on failure.
+          <br />It can take a while for the result to appear after submission.
+        </p>
+      </section>
+      <section id="unlock-form-section">
+        <form id="unlock-form">
+          <input
+            type="text"
+            name="url"
+            id="url-input"
+            placeholder="https://"
+            required
+          />
+          <div class="cf-turnstile" data-sitekey="{{captchaSiteKey}}"></div>
+          <button type="submit">Unlock</button>
+          <button type="button" id="clear-btn">Clear</button>
+        </form>
+      </section>
+      <section id="results-section">
+        <div id="results-container">
+          <div>
+            <p>Results</p>
+            <ul id="output-list"></ul>
+          </div>
+          <div>
+            <p>Supported Services</p>
+            <ul id="supported-services-list"></ul>
+          </div>
+        </div>
+      </section>
+      <section id="donation-section">
+        <h2> Support Unlockify </h2>
+        <p>
+          Donations are much appreciated to keep the server up and running for
+          free. If you're unable to donate, please consider supporting us by
+          disabling any ad blockers or sharing our website with others. Every
+          little bit helps!
+        </p>
+        <ul>
+          <li>
+            BTC : bc1q57nuq0lh20zp3xm3em2mendp8a0tx9yj40hkeu
+          </li>
+          <li>
+            ETH : 0x70E422Ac28BfB5c88c13b1916fD9CB68A96E7918
+          </li>
+          <li>
+            LTC : ltc1q0l58gjx22a5fv6dvfdgjms3h95yma0446ghu6m
+          </li>
+        </ul>
+      </section>
+    </main>
     <script src="/js/script.js"></script>
+    <script type="application/ld+json">
+      { "@context": "https://schema.org", "@type": "WebSite", "name":
+      "Unlockify", "url": "https://unlockify.link", "description": "Unlock links
+      instantly and skip annoying ads, captchas, and shorteners." }
+    </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 const elements = {
-  bypassForm: document.getElementById("bypass-form"),
+  unlockForm: document.getElementById("unlock-form"),
   urlInput: document.getElementById("url-input"),
   clearBtn: document.getElementById("clear-btn"),
   outputList: document.getElementById("output-list"),
@@ -25,7 +25,7 @@ async function getSupportedServices() {
   } catch (e) {
     insertResult(
       "failure",
-      `Failed to fetch supported bypass services: ${e.message}`,
+      `Failed to fetch supported unlock services: ${e.message}`,
     );
     return [];
   }
@@ -48,7 +48,7 @@ function insertResult(type, message) {
 }
 
 function resetForm() {
-  elements.bypassForm.reset();
+  elements.unlockForm.reset();
 }
 
 function getErrorMessage(message) {
@@ -96,7 +96,7 @@ function onClearButtonClick() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  elements.bypassForm.addEventListener("submit", onFormSubmit);
+  elements.unlockForm.addEventListener("submit", onFormSubmit);
   elements.clearBtn.addEventListener("click", onClearButtonClick);
 
   getSupportedServices().then((services) => {
