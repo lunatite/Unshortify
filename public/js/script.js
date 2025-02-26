@@ -66,6 +66,7 @@ function insertResult(type, message) {
 
 function resetForm() {
   elements.unlockForm.reset();
+  turnstile.reset();
 }
 
 function getErrorMessage(message) {
@@ -74,6 +75,10 @@ function getErrorMessage(message) {
 
 async function onFormSubmit(event) {
   event.preventDefault();
+
+  if (turnstile.isExpired() || !turnstile.getResponse()) {
+    return insertResult("failure", "Captcha is required");
+  }
 
   const url = elements.urlInput.value.trim();
 
@@ -91,7 +96,10 @@ async function onFormSubmit(event) {
     const response = await fetch("/api/unlock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ link: url, captchaToken: "" }),
+      body: JSON.stringify({
+        link: url,
+        captchaToken: turnstile.getResponse(),
+      }),
     });
 
     if (!response.ok) {

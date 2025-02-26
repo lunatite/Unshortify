@@ -33,7 +33,9 @@ export class TurnstileService implements CaptchaService {
           response: token,
           remoteip: ip,
         },
-        { httpsAgent: undefined },
+        {
+          proxy: false,
+        },
       );
 
     return {

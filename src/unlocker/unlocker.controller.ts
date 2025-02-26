@@ -5,8 +5,10 @@ import {
   HttpCode,
   Post,
   Get,
+  UseGuards,
 } from "@nestjs/common";
 import { AxiosError } from "axios";
+import { CaptchaGuard } from "src/security/captcha/captcha.guard";
 import { UnlockLinkDto } from "./dto/unlock-link.dto";
 import { LinkProcessorService } from "./link-processer.service";
 
@@ -14,6 +16,7 @@ import { LinkProcessorService } from "./link-processer.service";
 export class UnlockerController {
   constructor(private readonly service: LinkProcessorService) {}
 
+  @UseGuards(CaptchaGuard)
   @Post("/")
   @HttpCode(200)
   async process(@Body() dto: UnlockLinkDto) {
