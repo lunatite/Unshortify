@@ -1,5 +1,5 @@
 import { Controller, Get, Render } from "@nestjs/common";
-import { CaptchaProviderService } from "./captcha/captcha-provider.service";
+import { CaptchaProviderService } from "./security/captcha/captcha-provider.service";
 
 @Controller("/")
 export class AppController {

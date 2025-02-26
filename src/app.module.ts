@@ -7,7 +7,7 @@ import { SentryModule } from "@sentry/nestjs/setup";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import * as path from "path";
 import { validate } from "./env.validation";
-import { CaptchaModule } from "./captcha/captcha.module";
+import { CaptchaModule } from "./security/captcha/captcha.module";
 import { AppController } from "./app.controller";
 import { CaptchaSolverModule } from "./captcha-solver/captcha-solver.module";
 import { ProxyLoaderModule } from "./proxy-loader/proxy-loader.module";
