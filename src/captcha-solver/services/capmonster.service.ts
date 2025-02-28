@@ -3,10 +3,14 @@ import { ConfigService } from "@nestjs/config";
 import {
   CapMonsterCloudClientFactory,
   ClientOptions,
+  RecaptchaV2ProxylessRequest,
   TurnstileRequest,
 } from "@zennolab_com/capmonstercloud-client";
 import { CapMonsterCloudClient } from "@zennolab_com/capmonstercloud-client/dist/CapMonsterCloudClient";
-import { CaptchaSolver } from "../captcha-solver.interface";
+import {
+  CaptchaSolver,
+  RecaptchaV2ProxylessRequestParams,
+} from "../captcha-solver.interface";
 import { parseProxyAddress } from "src/utils/parseProxyAddress";
 
 export interface TurnstileRequestParams {
@@ -60,5 +64,18 @@ export class CapMonsterSolverService implements CaptchaSolver {
     }
 
     return (response.solution as any).cf_clearance;
+  }
+
+  async solveRecaptchaV2Proxyless(
+    task: RecaptchaV2ProxylessRequestParams,
+  ): Promise<string> {
+    const request = new RecaptchaV2ProxylessRequest(task);
+    const response = await this.cmcClient.Solve(request);
+
+    if (response.error) {
+      throw new Error(`CAPTCHA service error : ${response.error}`);
+    }
+
+    return response.solution.gRecaptchaResponse;
   }
 }
