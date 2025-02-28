@@ -20,7 +20,7 @@ export class CutyionService implements UnlockerService {
   public static readonly INPUT_DATA_SELECTOR = "input[name='data']";
   public static readonly RECAPTCHA_SITE_KEY =
     "6LdOhYIeAAAAAMqvDscr3FxQ3zZdIAYdwoSI7Jau";
-  public static readonly LINK_PREPARED_IN_SECS = 10;
+  public static readonly LINK_PREPARED_IN_SECS = 8;
 
   constructor(
     private readonly httpService: HttpService,
@@ -29,13 +29,9 @@ export class CutyionService implements UnlockerService {
     this.captchaSolver = captchaSolverFactory.getSolver("capmonster");
   }
 
-  private async firstChallenge(id: string) {
+  private async fetchTokenAndCookies(id: string) {
     const url = CutyionService.BASE_URL + id;
-
-    const { data, headers } = await this.httpService.axiosRef.get(url, {
-      responseType: "document",
-    });
-
+    const { data, headers } = await this.httpService.axiosRef.get(url);
     const $ = cheerio.load(data);
     const token = $(CutyionService.INPUT_TOKEN_SELECTOR).attr("value");
     const cookies = extractCookiesFromHeaders(headers);
@@ -45,6 +41,15 @@ export class CutyionService implements UnlockerService {
         "Failed to extract _token. The expected script may have changed or is missing from the HTML",
       );
     }
+
+    return {
+      token,
+      cookies,
+    };
+  }
+
+  private async solveCaptcha(id: string, token: string, cookies: string) {
+    const url = CutyionService.BASE_URL + id;
 
     const gRecaptchaResponse =
       await this.captchaSolver.solveRecaptchaV2Proxyless({
@@ -56,39 +61,70 @@ export class CutyionService implements UnlockerService {
     formData.append("_token", token);
     formData.append("g-recaptcha-response", gRecaptchaResponse);
 
-    const { data: ab } = await this.httpService.axiosRef.post(url, formData, {
+    const response = await this.httpService.axiosRef.post(url, formData, {
       headers: { Cookie: cookies },
     });
+    const $ = cheerio.load(response.data);
+    const extractedData = $(CutyionService.INPUT_DATA_SELECTOR).attr("value");
 
-    const b = cheerio.load(ab);
-
-    const data1 = b(CutyionService.INPUT_DATA_SELECTOR).attr("value");
-
-    if (!data1) {
+    if (!extractedData) {
       throw new Error(
         "Failed to extract data. The expected script may have changed or is missing from the HTML",
       );
     }
 
-    const newFormData = new FormData();
-    newFormData.append("_token", token);
-    newFormData.append("data", data1);
+    return extractedData;
+  }
 
-    const goUrl = CutyionService.BASE_URL + "go/" + id;
+  private async checkCaptchaRequirement(
+    id: string,
+    token: string,
+    cookies: string,
+  ) {
+    const url = CutyionService.BASE_URL + id;
+    const formData = new FormData();
+
+    formData.append("_token", token);
+
+    const response = await this.httpService.axiosRef.post(url, formData, {
+      headers: {
+        Cookie: cookies,
+      },
+    });
+
+    const finalUrl = response?.request?.res?.responseUrl ?? "";
+
+    return {
+      url: finalUrl,
+      isCaptchaRequired: finalUrl === url || !finalUrl,
+    };
+  }
+
+  private async getFinalUnlockedLink(
+    id: string,
+    token: string,
+    data: string,
+    cookies: string,
+  ) {
+    const formData = new FormData();
+    formData.append("_token", token);
+    formData.append("data", data);
+
+    const goUrl = `${CutyionService.BASE_URL}go/${id}`;
 
     await wait(CutyionService.LINK_PREPARED_IN_SECS * 1000);
 
-    const asdqwe = await this.httpService.axiosRef.post(goUrl, newFormData, {
+    const response = await this.httpService.axiosRef.post(goUrl, formData, {
       headers: {
         Cookie: cookies,
       },
       maxRedirects: 5,
     });
 
-    const unlockedLink = asdqwe.request.res.responseUrl;
+    const unlockedLink = response?.request?.res?.responseUrl ?? "";
 
     if (!unlockedLink) {
-      throw new Error("can't");
+      throw new Error("Failed to retrieve the final unlocked link");
     }
 
     return unlockedLink;
@@ -104,7 +140,25 @@ export class CutyionService implements UnlockerService {
       throw new InvalidPathException("/{id}");
     }
 
-    const unlockedLink = await this.firstChallenge(parts[0]);
+    const id = parts[0];
+    const { token, cookies } = await this.fetchTokenAndCookies(id);
+    const { isCaptchaRequired, url: finalUrl } =
+      await this.checkCaptchaRequirement(id, token, cookies);
+
+    if (!isCaptchaRequired) {
+      return {
+        type: "url",
+        content: finalUrl,
+      };
+    }
+
+    const data = await this.solveCaptcha(id, token, cookies);
+    const unlockedLink = await this.getFinalUnlockedLink(
+      id,
+      token,
+      data,
+      cookies,
+    );
 
     return {
       type: "url",
