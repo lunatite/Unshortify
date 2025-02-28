@@ -1,6 +1,7 @@
 import { CodexService } from "./key-systems/codex/codex.service";
 import { LinkvertiseService } from "./link-bypass/linkvertise/linkvertise.service";
 import { LootLabsService } from "./link-bypass/lootlabs/lootlabs.service";
+import { CutyionService } from "./link-bypass/cutyion";
 import { AdFocusService } from "./link-shorteners/adfocus.service";
 import { TinyUrlService } from "./link-shorteners/tinyurl.service";
 import { BoostInkService } from "./link-unlockers/boostink.service";
@@ -19,6 +20,7 @@ export default [
   LinkvertiseService,
   LootLabsService,
   AdFocusService,
+  CutyionService,
   TinyUrlService,
   BoostInkService,
   LinkUnlockerService,
